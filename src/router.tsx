@@ -1,0 +1,30 @@
+import { createBrowserRouter, Navigate } from "react-router-dom";
+import App from "./App";
+import Dashboard from "./pages/Dashboard";
+import { Certifications } from "./pages/Certifications";
+import { CertificationResults } from "./pages/CertificationResults";
+
+export const router = createBrowserRouter([
+  {
+    path: "/",
+    element: <App />,
+    children: [
+      {
+        index: true,
+        element: <Navigate to="/dashboard" replace />,
+      },
+      {
+        path: "dashboard",
+        element: <Dashboard />,
+      },
+      {
+        path: "certifications",
+        element: <Certifications />,
+      },
+      {
+        path: "certifications/results/:id",
+        element: <CertificationResults />,
+      },
+    ],
+  },
+]);

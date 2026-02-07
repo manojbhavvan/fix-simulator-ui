@@ -1,6 +1,6 @@
 import { ArrowRight, ChevronRight } from "lucide-react";
 import { mockSessions } from "@/mocks/mockSessions";
-import { SessionRow } from "@/components/SessionRow";
+import { SessionRow } from "@/components/Dashboard/SessionRow";
 
 export function FixSessionList() {
     return (
