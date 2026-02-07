@@ -1,17 +1,12 @@
 import { useEffect, useState } from "react";
+import { Loader2 } from "lucide-react";
 
 type FixEvent = {
   seq: number;
   type: string;
   label: string;
-  status?: "ok" | "missing" | "gap";
+  status?: "ok" | "missing";
 };
-
-const MOCK_EVENT_STREAM: FixEvent[] = [
-  { seq: 1, type: "A", label: "Logon" },
-  { seq: 2, type: "0", label: "Heartbeat", status: "missing" },
-  { seq: 3, type: "D", label: "New Order" },
-];
 
 export default function SequenceFlow({
   simulationId,
@@ -21,54 +16,105 @@ export default function SequenceFlow({
   onCompleted: () => void;
 }) {
   const [events, setEvents] = useState<FixEvent[]>([]);
-  const [status, setStatus] = useState<
-    "STARTING" | "RUNNING" | "COMPLETED"
-  >("STARTING");
+  const [showIssues, setShowIssues] = useState(false);
 
-  // Mock polling Orchestrator
   useEffect(() => {
-    setStatus("RUNNING");
-
-    let index = 0;
-    const interval = setInterval(() => {
-      setEvents(prev => [...prev, MOCK_EVENT_STREAM[index]]);
-      index++;
-
-      if (index === MOCK_EVENT_STREAM.length) {
-        clearInterval(interval);
-        setStatus("COMPLETED");
-        setTimeout(onCompleted, 800);
-      }
+    const t1 = setTimeout(() => {
+      setEvents([{ seq: 1, type: "A", label: "Logon", status: "ok" }]);
     }, 900);
 
-    return () => clearInterval(interval);
+    const t2 = setTimeout(() => {
+      setEvents((prev) => [
+        ...prev,
+        { seq: 2, type: "0", label: "Heartbeat", status: "missing" },
+      ]);
+    }, 1800);
+
+    const t3 = setTimeout(() => {
+      setEvents((prev) => [
+        ...prev,
+        { seq: 3, type: "D", label: "New Order", status: "ok" },
+      ]);
+    }, 2600);
+
+    const t4 = setTimeout(() => {
+      setShowIssues(true);
+    }, 3500);
+
+    const t5 = setTimeout(() => {
+      onCompleted();
+    }, 4400);
+
+    return () => {
+      clearTimeout(t1);
+      clearTimeout(t2);
+      clearTimeout(t3);
+      clearTimeout(t4);
+      clearTimeout(t5);
+    };
   }, [onCompleted]);
 
   return (
-    <div className="card bg-base-100 shadow p-6 space-y-4">
-      <h2 className="text-xl font-semibold">Sequence Flow</h2>
-
-      <div className="text-sm opacity-70">
-        Simulation: {simulationId} • Status: {status}
+    <div className="card bg-base-100 shadow p-6 space-y-6 w-[900px] max-w-full mx-auto">
+      <div>
+        <h2 className="text-lg font-semibold">Sequence Flow</h2>
+        <p className="text-sm text-base-content/60">
+          Simulation: {simulationId}
+        </p>
       </div>
 
-      <div className="flex justify-between font-semibold text-sm">
-        <span>Client</span>
-        <span>Exchange</span>
-      </div>
+      {!showIssues && (
+        <div className="flex items-center gap-2 text-sm text-primary">
+          <Loader2 className="animate-spin" size={16} />
+          Processing FIX messages…
+        </div>
+      )}
 
-      <div className="space-y-2">
-        {events.map(e => (
-          <div
-            key={e.seq}
-            className={`badge ${
-              e.status === "missing" ? "badge-error" : "badge-success"
-            }`}
-          >
-            #{e.seq} {e.label}
+      <div className="flex items-center justify-center gap-4 mt-4">
+        {events.map((event, idx) => (
+          <div key={event.seq} className="flex items-center gap-4">
+            <div
+              className={`
+                px-4 py-2 rounded-md border text-sm font-medium
+                ${
+                  event.status === "missing"
+                    ? "border-error bg-error/10 text-error"
+                    : "border-base-300 bg-base-100"
+                }
+              `}
+            >
+              {event.label} {event.type}
+            </div>
+
+            {idx < events.length - 1 && (
+              <span className="text-base-content/50 text-lg">→</span>
+            )}
           </div>
         ))}
+
+        {!showIssues && (
+          <div className="px-4 py-2 rounded-md border border-dashed border-base-300 text-sm text-base-content/50">
+            Processing…
+          </div>
+        )}
       </div>
+
+      {showIssues && (
+        <>
+          <div className="divider my-2" />
+          <div>
+            <h3 className="text-sm font-semibold mb-2">
+              Issues Detected:
+            </h3>
+
+            <ul className="space-y-1 text-sm">
+              <li className="text-error">• Missing Heartbeat</li>
+              <li className="text-warning">• Seq Gap Detected</li>
+              <li className="text-base-content/70">• No Logout</li>
+            </ul>
+          </div>
+        </>
+      )}
     </div>
   );
 }
