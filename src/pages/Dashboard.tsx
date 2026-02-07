@@ -1,8 +1,8 @@
-import { Navbar } from "@/components/Navbar";
-import { ActionPanel } from "@/components/ActionPanel";
-import { RecentCertifications } from "@/components/RecentCertifications";
-import { FixSessionHealth } from "@/components/FixSessionHealth";
-import { MonitoringSection } from "@/components/MonitoringSection";
+import { Navbar } from "@/components/Navbar/Navbar";
+import { ActionPanel } from "@/components/Dashboard/ActionPanel";
+import { RecentCertifications } from "@/components/Dashboard/RecentCertifications";
+import { FixSessionHealth } from "@/components/Dashboard/FixSessionHealth";
+import { MonitoringSection } from "@/components/Dashboard/Monitoring/MonitoringSection";
 
 export default function Dashboard() {
   return (
