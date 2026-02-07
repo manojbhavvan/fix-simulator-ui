@@ -14,7 +14,6 @@ export function MessageDetails({ message }: any) {
             <div className="space-y-4">
                 <h3 className="font-semibold text-base">Message Details</h3>
 
-                {/* DETAILS TABLE */}
                 <div className="overflow-hidden border border-base-300 rounded">
                     <table className="w-full text-sm">
                         <tbody className="divide-y divide-base-300">
@@ -48,7 +47,6 @@ export function MessageDetails({ message }: any) {
                     </table>
                 </div>
 
-                {/* MISSING REQUIRED TAGS */}
                 {d.missingTags?.length > 0 && (
                     <div>
                         <div className="font-medium text-error mb-2">

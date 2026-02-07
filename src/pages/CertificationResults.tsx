@@ -18,11 +18,8 @@ export function CertificationResults() {
   );
 
   return (
-    // 🔥 FIXED HEIGHT BELOW NAVBAR
     <div className="p-6 h-[calc(100vh-64px)]">
       <div className="card bg-base-100 border h-full flex flex-col overflow-hidden">
-
-        {/* HEADER */}
         <div className="p-5 border-b border-base-300 shrink-0 mb-4">
           <div className="flex items-center gap-2 text-sm">
             <BackButton />
@@ -36,16 +33,12 @@ export function CertificationResults() {
           </div>
         </div>
 
-        {/* BODY */}
         <div className="card-body p-0 flex flex-col flex-1 min-h-0">
 
-          {/* Tabs (fixed) */}
           <Tabs active={activeTab} onChange={setActiveTab} />
 
-          {/* CONTENT */}
           <div className="grid grid-cols-12 gap-4 mt-4 flex-1 min-h-0">
 
-            {/* LEFT PANEL — SCROLLS */}
             <div className="col-span-3 overflow-y-auto">
               <MessageList
                 messages={data.messages}
@@ -54,11 +47,9 @@ export function CertificationResults() {
               />
             </div>
 
-            {/* RIGHT PANEL */}
             <div className="col-span-9 min-h-0">
               <div className="card bg-base-100 border h-full flex flex-col">
                 
-                {/* 🔥 SINGLE SCROLL OWNER */}
                 <div className="card-body flex-1 min-h-0 overflow-y-auto">
 
                   {activeTab === "details" && (
@@ -82,7 +73,6 @@ export function CertificationResults() {
                 </div>
               </div>
             </div>
-
           </div>
         </div>
       </div>

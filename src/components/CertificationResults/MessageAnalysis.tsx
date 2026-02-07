@@ -11,14 +11,11 @@ export function MessageAnalysis({ message }: any) {
 
   return (
     <div className="space-y-4">
-      {/* AI Analysis - MAIN PANEL */}
       <div className="border border-base-300 rounded">
-        {/* Header */}
         <div className="px-4 py-2 border-b border-base-300 bg-base-200 font-semibold text-sm">
           AI Analysis
         </div>
 
-        {/* Content */}
         <div className="px-4 py-3 text-sm space-y-3 bg-base-100">
           <p>{a.summary}</p>
 
@@ -32,7 +29,6 @@ export function MessageAnalysis({ message }: any) {
         </div>
       </div>
 
-      {/* Suggested FIX */}
       {a.suggestedFix && (
         <div className="border border-base-300 rounded">
           <div className="flex items-center justify-between px-4 py-2 border-b border-base-300 bg-base-200 text-sm font-medium font-semibold">
@@ -44,8 +40,7 @@ export function MessageAnalysis({ message }: any) {
           </pre>
         </div>
       )}
-
-      {/* Possible Reason */}
+      
       {a.possibleReason && (
         <div className="border border-base-300 rounded">
           <div className="px-4 py-2 border-b border-base-300 bg-base-200 text-sm font-medium font-semibold">
@@ -58,7 +53,6 @@ export function MessageAnalysis({ message }: any) {
         </div>
       )}
 
-      {/* Recommendation */}
       {a.recommendation && (
         <div className="border border-base-300 rounded">
           <div className="px-4 py-2 border-b border-base-300 bg-base-200 text-sm font-medium font-semibold">

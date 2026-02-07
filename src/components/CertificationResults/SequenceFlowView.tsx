@@ -2,17 +2,14 @@ import { ArrowRight } from "lucide-react";
 
 export function SequenceFlowView({ flow }: any) {
   return (
-    // NO height logic here — parent scrolls
     <div className="space-y-6">
-
-      {/* Sequence Flow */}
-      <div className="border border-base-300 rounded">
+      <div className="rounded">
         <div className="px-4 py-2 font-semibold border-b border-base-300">
           Sequence Flow
         </div>
 
         <div className="p-4">
-          <div className="flex flex-col gap-2 text-sm">
+          <div className="flex flex-row gap-2 text-sm justify-center items-center">
             {flow.nodes.map((node: string, idx: number) => (
               <div key={idx} className="flex items-center gap-2">
                 <span className="px-3 py-1 border border-base-300 rounded bg-base-100 font-medium">
@@ -27,7 +24,6 @@ export function SequenceFlowView({ flow }: any) {
         </div>
       </div>
 
-      {/* Issues */}
       {flow.issues?.length > 0 && (
         <div className="border border-warning/40 bg-warning/10 rounded">
           <div className="px-4 py-2 font-semibold text-warning border-b border-warning/30">
@@ -51,7 +47,6 @@ export function SequenceFlowView({ flow }: any) {
         </div>
       )}
 
-      {/* AI Insights */}
       {flow.insights?.length > 0 && (
         <div className="border border-info/40 bg-info/5 rounded">
           <div className="px-4 py-2 font-semibold text-info border-b border-info/30">
