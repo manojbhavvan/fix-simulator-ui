@@ -2,3 +2,6 @@
 @tailwind components;
 @tailwind utilities;
 
+section {
+  scroll-margin-top: var(--navbar-height);
+}
