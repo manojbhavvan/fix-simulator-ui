@@ -1,15 +1,27 @@
 import { useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
+
 import UploadFixLog from "../components/Certifications/UploadFixLog";
 import RunCertification from "../components/Certifications/RunCertification";
 import SequenceFlow from "../components/Certifications/SequenceFlow";
 import CertificationStepper from "../components/Certifications/CertificationStepper";
-import { useNavigate } from "react-router-dom";
 
 type Step = "upload" | "run" | "sequence";
+type Entry = "upload" | "run" | undefined;
 
 export function Certifications() {
-  const [step, setStep] = useState<Step>("upload");
+  const location = useLocation();
   const navigate = useNavigate();
+
+  const entry = location.state?.entry as Entry;
+
+  const [step, setStep] = useState<Step>(
+    entry === "run" ? "run" : "upload"
+  );
+
+  const [uploadedFileName, setUploadedFileName] = useState<
+    string | undefined
+  >(undefined);
 
   return (
     <div className="p-6 space-y-6">
@@ -18,8 +30,11 @@ export function Certifications() {
       {step === "upload" && (
         <div className="flex justify-center">
           <UploadFixLog
-            onContinue={() => setStep("run")}
-            onBack={() => navigate("/")}   // back to Dashboard
+            onContinue={(fileName?: string) => {
+              setUploadedFileName(fileName);
+              setStep("run");
+            }}
+            onBack={() => navigate("/dashboard")}
           />
         </div>
       )}
@@ -28,7 +43,9 @@ export function Certifications() {
         <div className="flex justify-center">
           <RunCertification
             onRun={() => setStep("sequence")}
-            onBack={() => setStep("upload")} // back to Upload
+            onBack={() => setStep("upload")}
+            uploadedFileName={uploadedFileName}
+            allowUpload={!uploadedFileName}
           />
         </div>
       )}

@@ -2,12 +2,13 @@ import { useRef, useState } from "react";
 import { ArrowLeft } from "lucide-react";
 
 type Props = {
-  onContinue: () => void;
+  onContinue: (fileName?: string) => void;
   onBack: () => void;
 };
 
 export default function UploadFixLog({ onContinue, onBack }: Props) {
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [isDragging, setIsDragging] = useState(false);
 
   return (
@@ -34,7 +35,7 @@ export default function UploadFixLog({ onContinue, onBack }: Props) {
 
           const file = e.dataTransfer.files?.[0];
           if (file) {
-            console.log("Dropped file:", file);
+            setSelectedFile(file);
           }
         }}
         onClick={() => fileInputRef.current?.click()}
@@ -58,7 +59,7 @@ export default function UploadFixLog({ onContinue, onBack }: Props) {
           onChange={(e) => {
             const file = e.target.files?.[0];
             if (file) {
-              console.log("Selected file:", file);
+              setSelectedFile(file);
             }
           }}
         />
@@ -149,7 +150,7 @@ export default function UploadFixLog({ onContinue, onBack }: Props) {
 
 
         <button
-          onClick={onContinue}
+          onClick={() => onContinue(selectedFile?.name)}
           className="px-3 btn btn-sm bg-primary text-primary-content
             border border-primary hover:bg-transparent hover:text-primary
             transition-colors"
