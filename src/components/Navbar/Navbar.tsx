@@ -1,21 +1,33 @@
 import { useEffect, useRef, useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import { NavItem } from "./NavItem";
 
-type TabKey = "dashboard" | "monitoring";
+type TabKey = "dashboard" | "fileUpload" | "monitoring";
 
 export function Navbar() {
   const navRef = useRef<HTMLDivElement>(null);
+  const navigate = useNavigate();
+  const location = useLocation();
+
   const tabsRef = useRef<Record<TabKey, HTMLDivElement | null>>({
     dashboard: null,
+    fileUpload: null,
     monitoring: null,
   });
 
   const [active, setActive] = useState<TabKey>("dashboard");
-  const [underlineStyle, setUnderlineStyle] = useState<{
-    left: number;
-    width: number;
-  }>({ left: 0, width: 0 });
+  const [underlineStyle, setUnderlineStyle] = useState({
+    left: 0,
+    width: 0,
+  });
 
+  const isCertificationsRoute = location.pathname.startsWith("/certifications");
+  const isDashboardRoute =
+    location.pathname === "/" || location.pathname === "/dashboard";
+
+  /* --------------------------------------------------
+   * Store navbar height as CSS variable
+   * -------------------------------------------------- */
   useEffect(() => {
     if (!navRef.current) return;
     const height = navRef.current.offsetHeight;
@@ -25,7 +37,21 @@ export function Navbar() {
     );
   }, []);
 
+  /* --------------------------------------------------
+   * Route-based activation
+   * -------------------------------------------------- */
   useEffect(() => {
+    if (isCertificationsRoute) {
+      setActive("fileUpload");
+    }
+  }, [isCertificationsRoute]);
+
+  /* --------------------------------------------------
+   * Scroll-based activation (ONLY on dashboard)
+   * -------------------------------------------------- */
+  useEffect(() => {
+    if (!isDashboardRoute) return;
+
     const dashboard = document.getElementById("dashboard");
     const monitoring = document.getElementById("monitoring");
 
@@ -65,8 +91,11 @@ export function Navbar() {
     observer.observe(monitoring);
 
     return () => observer.disconnect();
-  }, []);
+  }, [isDashboardRoute]);
 
+  /* --------------------------------------------------
+   * Underline animation
+   * -------------------------------------------------- */
   useEffect(() => {
     const el = tabsRef.current[active];
     if (!el) return;
@@ -82,49 +111,76 @@ export function Navbar() {
       ref={navRef}
       className="sticky top-0 z-50 bg-base-100 border-b border-base-300 shadow-sm"
     >
+      {/* Title */}
       <div className="px-6 py-3 border-b border-base-200">
         <span className="text-lg font-semibold">
           AI FIX Certification Tool
         </span>
       </div>
 
+      {/* Tabs */}
       <div className="px-6 relative">
         <div className="flex gap-6 text-sm relative">
+          {/* Dashboard */}
           <NavItem
             ref={(el) => (tabsRef.current.dashboard = el)}
             label="Dashboard"
             active={active === "dashboard"}
             onClick={() => {
               setActive("dashboard");
+
+              if (isCertificationsRoute) {
+                navigate("/dashboard");
+                return;
+              }
+
               document
                 .getElementById("dashboard")
                 ?.scrollIntoView({ behavior: "smooth" });
             }}
-
           />
 
-          <div className="py-3 text-base-content/70 hover:text-base-content cursor-pointer">
+          {/* File Upload */}
+          <div
+            ref={(el) => (tabsRef.current.fileUpload = el)}
+            className={`py-3 cursor-pointer ${
+              active === "fileUpload"
+                ? "text-base-content"
+                : "text-base-content/70 hover:text-base-content"
+            }`}
+            onClick={() => navigate("/certifications")}
+          >
             File Upload
           </div>
 
+          {/* Monitoring */}
           <NavItem
             ref={(el) => (tabsRef.current.monitoring = el)}
             label="Monitoring"
             active={active === "monitoring"}
             onClick={() => {
               setActive("monitoring");
+
+              if (isCertificationsRoute) {
+                navigate("/dashboard");
+                setTimeout(() => {
+                  document
+                    .getElementById("monitoring")
+                    ?.scrollIntoView({ behavior: "smooth" });
+                }, 50);
+                return;
+              }
+
               document
                 .getElementById("monitoring")
                 ?.scrollIntoView({ behavior: "smooth" });
             }}
-
           />
 
+          {/* Underline */}
           <span
-            className="
-              absolute bottom-0 h-[2px] bg-primary rounded
-              transition-all duration-300 ease-out
-            "
+            className="absolute bottom-0 h-[2px] bg-primary rounded
+                       transition-all duration-300 ease-out"
             style={{
               left: underlineStyle.left,
               width: underlineStyle.width,

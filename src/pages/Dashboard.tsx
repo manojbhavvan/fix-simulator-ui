@@ -7,7 +7,6 @@ import { MonitoringSection } from "@/components/Dashboard/Monitoring/MonitoringS
 export default function Dashboard() {
   return (
     <>
-      <Navbar />
 
       <main className="p-6">
         <section className="grid grid-cols-12 gap-6 items-stretch" id="dashboard">
