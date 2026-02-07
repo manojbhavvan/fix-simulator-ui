@@ -25,9 +25,6 @@ export function Navbar() {
   const isDashboardRoute =
     location.pathname === "/" || location.pathname === "/dashboard";
 
-  /* --------------------------------------------------
-   * Store navbar height as CSS variable
-   * -------------------------------------------------- */
   useEffect(() => {
     if (!navRef.current) return;
     const height = navRef.current.offsetHeight;
@@ -37,18 +34,12 @@ export function Navbar() {
     );
   }, []);
 
-  /* --------------------------------------------------
-   * Route-based activation
-   * -------------------------------------------------- */
   useEffect(() => {
     if (isCertificationsRoute) {
       setActive("fileUpload");
     }
   }, [isCertificationsRoute]);
 
-  /* --------------------------------------------------
-   * Scroll-based activation (ONLY on dashboard)
-   * -------------------------------------------------- */
   useEffect(() => {
     if (!isDashboardRoute) return;
 
@@ -93,9 +84,6 @@ export function Navbar() {
     return () => observer.disconnect();
   }, [isDashboardRoute]);
 
-  /* --------------------------------------------------
-   * Underline animation
-   * -------------------------------------------------- */
   useEffect(() => {
     const el = tabsRef.current[active];
     if (!el) return;
