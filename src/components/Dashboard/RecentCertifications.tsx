@@ -1,4 +1,51 @@
+import { useEffect, useState } from "react";
+import axios from "axios";
+import { API_BASE_URL } from "../../config/api";
+import { ChevronLeft, ChevronRight } from 'lucide-react';
+
+
+type Simulation = {
+  simId: number;
+  fixVersion: string | null;
+  logPath: string;
+  dateCreated: string;
+  dateModified: string;
+};
+
+const ITEMS_PER_PAGE = 5;
+
 export function RecentCertifications() {
+  const [data, setData] = useState<Simulation[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [page, setPage] = useState(1);
+
+  useEffect(() => {
+    fetchSimulations();
+  }, []);
+
+  const fetchSimulations = async () => {
+    try {
+      setLoading(true);
+
+      const response = await axios.get<Simulation[]>(
+        `${API_BASE_URL}/simulation/all`
+      );
+
+      setData(response.data || []);
+    } catch (error) {
+      console.error("Failed to fetch simulations", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const totalPages = Math.ceil(data.length / ITEMS_PER_PAGE);
+  const startIndex = (page - 1) * ITEMS_PER_PAGE;
+  const paginatedData = data.slice(
+    startIndex,
+    startIndex + ITEMS_PER_PAGE
+  );
+
   return (
     <div>
       <h3 className="text-base font-semibold text-base-content/80 pb-4">
@@ -16,68 +63,102 @@ export function RecentCertifications() {
                 Version
               </th>
               <th className="text-xs font-semibold text-base-content/70">
-                Status
+                Created
               </th>
               <th className="text-xs font-semibold text-base-content/70">
-                Date
+                Modified
               </th>
             </tr>
           </thead>
 
           <tbody>
-            <Row
-              file="orderflow.log"
-              version="FIX 4.2"
-              status="PASS"
-              color="text-success"
-              date="Jan 22"
-            />
-            <Row
-              file="client1_fix.log"
-              version="FIX 4.2"
-              status="FAIL"
-              color="text-error"
-              date="Jan 21"
-            />
-            <Row
-              file="tradeflow_ny.log"
-              version="FIX 4.4"
-              status="WARN"
-              color="text-warning"
-              date="Jan 20"
-            />
+            {loading && (
+              <tr>
+                <td colSpan={4} className="text-center py-4">
+                  Loading...
+                </td>
+              </tr>
+            )}
+
+            {!loading && paginatedData.length === 0 && (
+              <tr>
+                <td colSpan={4} className="text-center py-4">
+                  No data available
+                </td>
+              </tr>
+            )}
+
+            {!loading &&
+              paginatedData.map((item) => (
+                <Row key={item.simId} item={item} />
+              ))}
           </tbody>
         </table>
       </div>
+      {totalPages > 1 && (
+        <div className="flex justify-end items-center gap-3 mt-4">
+          <button
+            className="h-8 w-8 flex items-center justify-center 
+                 rounded-md border border-base-300 
+                 bg-base-100 shadow-sm 
+                 hover:bg-base-200 
+                 transition"
+            disabled={page === 1}
+            onClick={() => setPage((p) => p - 1)}
+          >
+            <ChevronLeft size={18} />
+          </button>
+
+          <span className="text-sm font-medium leading-none">
+            Page {page} of {totalPages}
+          </span>
+
+          <button
+            className="h-8 w-8 flex items-center justify-center 
+                 rounded-md border border-base-300 
+                 bg-base-100 shadow-sm 
+                 hover:bg-base-200 
+                 transition"
+            disabled={page === totalPages}
+            onClick={() => setPage((p) => p + 1)}
+          >
+            <ChevronRight size={18} />
+          </button>
+        </div>
+      )}
     </div>
   );
 }
 
+function Row({ item }: { item: Simulation }) {
+  const fileName =
+    item.logPath?.split("/").pop() || "-";
 
-function Row(props: {
-  file: string;
-  version: string;
-  status: string;
-  color: string;
-  date: string;
-}) {
+  const formatVersion = (version: string | null) => {
+    if (!version) return "-";
+
+    const match = version.match(/FIX\d+/i);
+    return match ? match[0] : version;
+  };
+
+  const formatDate = (date: string) =>
+    new Date(date).toLocaleString("en-US", {
+      month: "short",
+      day: "numeric",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+
   return (
-    <tr
-      className="
-        hover:bg-base-200
-        transition-colors
-        cursor-pointer
-      "
-    >
-      <td className="font-medium">{props.file}</td>
-      <td>{props.version}</td>
-      <td>
-        <span className={`text-xs font-semibold ${props.color}`}>
-          {props.status}
-        </span>
+    <tr className="hover:bg-base-200 transition-colors cursor-pointer">
+      <td className="font-medium">{fileName}</td>
+      <td>{formatVersion(item.fixVersion)}</td>
+      <td className="text-base-content/70">
+        {formatDate(item.dateCreated)}
       </td>
       <td className="text-base-content/70">
-        {props.date}
+        {formatDate(item.dateModified)}
       </td>
     </tr>
   );

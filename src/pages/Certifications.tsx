@@ -1,5 +1,7 @@
 import { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
+import axios from "axios";
+import { API_BASE_URL } from "../config/api";
 
 import UploadFixLog from "../components/Certifications/UploadFixLog";
 import RunCertification from "../components/Certifications/RunCertification";
@@ -23,6 +25,49 @@ export function Certifications() {
     string | undefined
   >(undefined);
 
+  const [simulationId, setSimulationId] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+
+  const handleRunCertification = async () => {
+    try {
+      setLoading(true);
+
+      const payload = {
+        simId: null,
+        fixVersion: "FIX44",
+        logPath: uploadedFileName
+          ? `/log/${uploadedFileName}`
+          : "/log/log.txt",
+        dateCreated: new Date().toISOString(),
+        dateModified: new Date().toISOString(),
+      };
+
+      const { data } = await axios.post(
+        `${API_BASE_URL}/simulation`,
+        payload,
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      console.log("Simulation Created:", data);
+
+      setSimulationId(String(data.simId));
+      setStep("sequence");
+
+    } catch (error: any) {
+      console.error(
+        "Error running certification:",
+        error?.response?.data || error.message
+      );
+      alert("Failed to run certification");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="p-6 space-y-6">
       <CertificationStepper step={step} />
@@ -42,7 +87,7 @@ export function Certifications() {
       {step === "run" && (
         <div className="flex justify-center">
           <RunCertification
-            onRun={() => setStep("sequence")}
+            onRun={handleRunCertification}
             onBack={() => setStep("upload")}
             uploadedFileName={uploadedFileName}
             allowUpload={!uploadedFileName}
@@ -50,11 +95,11 @@ export function Certifications() {
         </div>
       )}
 
-      {step === "sequence" && (
+      {step === "sequence" && simulationId && (
         <SequenceFlow
-          simulationId="SIM-20260123-000012"
+          simulationId={simulationId}
           onCompleted={() =>
-            navigate("/certifications/results/SIM-20260123-000012")
+            navigate(`/certifications/results/${simulationId}`)
           }
         />
       )}
