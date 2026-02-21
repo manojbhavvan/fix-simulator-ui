@@ -68,7 +68,7 @@ export default function UploadFixLog({ onContinue, onBack }: Props) {
           }}
         />
       </div>
-
+      {/* 
       <div className="flex items-center gap-4">
         <span className="text-sm font-medium text-text">
           FIX Version
@@ -88,8 +88,8 @@ export default function UploadFixLog({ onContinue, onBack }: Props) {
         </select>
       </div>
 
-      <div className="border-t border-border/70 my-2" />
-
+      <div className="border-t border-border/70 my-2" /> */}
+      {/* 
       <div>
         <div className="flex items-center justify-between mb-4">
           <span className="text-base font-semibold text-text">
@@ -150,8 +150,8 @@ export default function UploadFixLog({ onContinue, onBack }: Props) {
             </tbody>
           </table>
         </div>
-      </div>
-
+      </div> 
+      */}
       <div className="flex justify-between items-center pt-6">
         <button
           onClick={onBack}

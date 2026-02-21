@@ -139,7 +139,7 @@ export default function RunCertification({
 
       <div className="space-y-2">
         <label className="text-sm font-medium text-text">
-          Select Simulator (CLIENT)
+          Select CLIENT Simulator Config
         </label>
         <select
           className={`w-full px-3 py-2 rounded-md bg-background border

@@ -18,15 +18,13 @@ export function ActionPanel() {
 
         <div className="grid grid-cols-3 gap-4">
           <button
-            onClick={() =>
-              navigate("/certifications", { state: { entry: "run" } })
-            }
+            onClick={() => navigate("/simulator/config")}
             className={`${baseButton}
               border-brand text-brand
               hover:bg-brand hover:text-white`}
           >
-            <Play className="w-4 h-4" />
-            Run Certification
+            <Settings className="w-4 h-4" />
+            Simulator Configuration
           </button>
 
           <button
@@ -42,13 +40,15 @@ export function ActionPanel() {
           </button>
 
           <button
-            onClick={() => navigate("/simulator/config")}
+            onClick={() =>
+              navigate("/certifications", { state: { entry: "run" } })
+            }
             className={`${baseButton}
               border-brand text-brand
               hover:bg-brand hover:text-white`}
           >
-            <Settings className="w-4 h-4" />
-            Simulator Configuration
+            <Play className="w-4 h-4" />
+            Run Certification
           </button>
         </div>
       </div>

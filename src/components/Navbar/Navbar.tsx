@@ -59,9 +59,20 @@ export function Navbar() {
       className="sticky top-0 z-50 bg-background border-b border-border shadow-sm"
     >
       <div className="px-6 py-4 border-b border-border bg-background flex items-center">
-        <h1 className="text-2xl font-semibold text-brand tracking-tight">
-          Intelli<span className="text-text">FIX</span>
-        </h1>
+        <div className="flex items-center gap-3">
+          <img
+            src="/logo.svg"
+            alt="IntelliFIX Logo"
+            className="h-8 w-auto"
+          />
+          <h1 className="text-2xl font-semibold text-brand tracking-tight flex items-baseline">
+            Intelli
+            <span className="text-text">FIX</span>
+            <span className="text-[10px] text-text/50 ml-1">
+              Simulation Engine
+            </span>
+          </h1>
+        </div>
       </div>
 
       <div className="px-6 relative">
@@ -75,7 +86,7 @@ export function Navbar() {
 
           <NavItem
             ref={(el) => (tabsRef.current.fileUpload = el)}
-            label="File Upload"
+            label="Simulation"
             active={active === "fileUpload"}
             onClick={() => navigate("/certifications")}
           />
