@@ -199,7 +199,7 @@ export default function SimulatorConfigScreen() {
         <Section title="Basic Information">
           <div className="col-span-2 grid grid-cols-3 gap-6">
             <InputField
-              label="Simulator Config Name"
+              label="Config Name"
               value={form.simulatorConfigName}
               error={errors.simulatorConfigName}
               onBlur={() => handleBlur("simulatorConfigName")}
@@ -207,7 +207,7 @@ export default function SimulatorConfigScreen() {
             />
 
             <SelectField
-              label="Simulator Config Type"
+              label="Config Type"
               value={form.simulatorConfigType}
               onChange={(v) =>
                 handleChange("simulatorConfigType", v as SimulatorConfigType)
