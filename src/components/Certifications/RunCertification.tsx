@@ -31,6 +31,7 @@ interface UploadLog {
   fileName: string;
   filePath: string;
   uploadStatus: string;
+  dateCreated: string;
 }
 
 export default function RunCertification({
@@ -71,15 +72,20 @@ export default function RunCertification({
   }, []);
 
   useEffect(() => {
-    // Replace with real upload API later
-    setUploadLogs([
-      {
-        uploadId: 1,
-        fileName: "uat_tradeflow.log",
-        filePath: "/logs/uat_tradeflow.log",
-        uploadStatus: "COMPLETED",
-      },
-    ]);
+    axios
+      .get(`${API_BASE_URL}/rest/upload/log/all`)
+      .then((res) => {
+        const sortedLogs = (res.data || [])
+          .filter((log: UploadLog) => log.uploadStatus === "COMPLETED")
+          .sort(
+            (a: UploadLog, b: UploadLog) =>
+              new Date(b.dateCreated).getTime() -
+              new Date(a.dateCreated).getTime()
+          );
+
+        setUploadLogs(sortedLogs);
+      })
+      .catch(() => { });
   }, []);
 
   const validate = () => {
