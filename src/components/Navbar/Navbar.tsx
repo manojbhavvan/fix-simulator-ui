@@ -59,7 +59,10 @@ export function Navbar() {
       className="sticky top-0 z-50 bg-background border-b border-border shadow-sm"
     >
       <div className="px-6 py-4 border-b border-border bg-background flex items-center">
-        <div className="flex items-center gap-3">
+        <div
+          className="flex items-center gap-3 cursor-pointer"
+          onClick={() => navigate("/dashboard")}
+        >
           <img
             src="/logo.svg"
             alt="IntelliFIX Logo"
