@@ -68,8 +68,8 @@ export function RecentCertifications() {
             <tr className="text-left text-xs font-normal text-text-muted tracking-wide">
               <th className="px-4 py-3">File</th>
               <th className="px-4 py-3">Version</th>
-              <th className="px-4 py-3">Created</th>
-              <th className="px-4 py-3">Modified</th>
+              <th className="px-4 py-3">Created Date</th>
+              <th className="px-4 py-3">Modified Date</th>
             </tr>
           </thead>
 
