@@ -9,18 +9,17 @@ const steps: { key: Step; label: string }[] = [
 ];
 
 export default function CertificationStepper({ step }: { step: Step }) {
-  const activeIndex = steps.findIndex(s => s.key === step);
+  const activeIndex = steps.findIndex((s) => s.key === step);
 
   return (
-    <div className="flex justify-center mb-8">
-      {/* Card – width only as needed */}
+    <div className="flex justify-center mb-10">
       <div
         className="
-          bg-base-100
-          px-10 py-5
+          bg-background
+          px-12 py-6
           rounded-lg
-          shadow-xl shadow-base-300/50
-          border border-base-200
+          border border-border
+          shadow-sm
         "
       >
         <div className="flex items-center justify-center">
@@ -29,7 +28,7 @@ export default function CertificationStepper({ step }: { step: Step }) {
             const isActive = i === activeIndex;
 
             return (
-              <div key={s.key} className="flex items-center">
+              <div key={s.key} className="flex items-center">                
                 {/* Step */}
                 <div className="flex items-center gap-3">
                   <div
@@ -37,21 +36,24 @@ export default function CertificationStepper({ step }: { step: Step }) {
                       w-9 h-9 rounded-full
                       flex items-center justify-center
                       text-sm font-semibold
+                      transition-colors
                       ${
-                        isCompleted || isActive
-                          ? "bg-primary text-primary-content"
-                          : "bg-base-300 text-base-content/60"
+                        isCompleted
+                          ? "bg-brand text-white"
+                          : isActive
+                          ? "border-2 border-brand text-brand bg-background"
+                          : "bg-background-muted text-text-muted border border-border"
                       }
                     `}
                   >
-                    {isCompleted ? <Check size={18} /> : i + 1}
+                    {isCompleted ? <Check size={16} /> : i + 1}
                   </div>
 
                   <span
                     className={`text-sm font-medium whitespace-nowrap ${
-                      isActive || isCompleted
-                        ? "text-base-content"
-                        : "text-base-content/60"
+                      isCompleted || isActive
+                        ? "text-text"
+                        : "text-text-muted"
                     }`}
                   >
                     {s.label}
@@ -60,7 +62,16 @@ export default function CertificationStepper({ step }: { step: Step }) {
 
                 {/* Connector */}
                 {i < steps.length - 1 && (
-                  <div className="mx-8 h-px w-24 bg-base-300" />
+                  <div
+                    className={`mx-8 h-px w-24
+                      ${
+                        i < activeIndex
+                          ? "bg-brand"
+                          : "bg-border"
+                      }
+                      transition-colors
+                    `}
+                  />
                 )}
               </div>
             );

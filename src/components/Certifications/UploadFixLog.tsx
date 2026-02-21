@@ -12,18 +12,21 @@ export default function UploadFixLog({ onContinue, onBack }: Props) {
   const [isDragging, setIsDragging] = useState(false);
 
   return (
-    <div className="card bg-base-100 shadow p-6 space-y-4 w-[720px] max-w-full">
-      <h2 className="text-lg font-semibold">Upload FIX Log</h2>
+    <div className="bg-background border border-border rounded-lg shadow-sm p-8 space-y-8 w-[900px] max-w-full mx-auto">
+      <h2 className="text-xl font-semibold text-brand">
+        Upload FIX Log
+      </h2>
 
       <div
-        className={`h-40 border-2 border-dashed rounded-lg 
+        className={`
+          h-44 border-2 border-dashed rounded-lg
           flex flex-col items-center justify-center text-center
           transition-colors cursor-pointer
           ${isDragging
-            ? "bg-primary/10 border-primary"
-            : "bg-primary/5 border-primary/30 hover:bg-primary/10"
+            ? "bg-brand/10 border-brand"
+            : "bg-background-muted border-border hover:border-brand"
           }
-      `}
+        `}
         onDragOver={(e) => {
           e.preventDefault();
           setIsDragging(true);
@@ -32,24 +35,27 @@ export default function UploadFixLog({ onContinue, onBack }: Props) {
         onDrop={(e) => {
           e.preventDefault();
           setIsDragging(false);
-
           const file = e.dataTransfer.files?.[0];
-          if (file) {
-            setSelectedFile(file);
-          }
+          if (file) setSelectedFile(file);
         }}
         onClick={() => fileInputRef.current?.click()}
       >
-        <p className="text-sm font-medium text-base-content">
+        <p className="text-sm font-medium text-text">
           Drop your file here or{" "}
-          <span className="text-primary font-semibold underline">
+          <span className="text-brand font-semibold underline">
             browse
           </span>
         </p>
 
-        <p className="mt-1 text-xs text-base-content/60">
-          Max. file size: 20MB
+        <p className="mt-1 text-xs text-text-muted">
+          Max file size: 20MB
         </p>
+
+        {selectedFile && (
+          <p className="mt-3 text-sm text-brand font-medium">
+            Selected: {selectedFile.name}
+          </p>
+        )}
 
         <input
           ref={fileInputRef}
@@ -58,77 +64,86 @@ export default function UploadFixLog({ onContinue, onBack }: Props) {
           className="hidden"
           onChange={(e) => {
             const file = e.target.files?.[0];
-            if (file) {
-              setSelectedFile(file);
-            }
+            if (file) setSelectedFile(file);
           }}
         />
       </div>
 
-      <div className="flex items-center gap-3">
-        <span className="text-sm text-base-content/70 whitespace-nowrap">
+      <div className="flex items-center gap-4">
+        <span className="text-sm font-medium text-text">
           FIX Version
         </span>
 
         <select
-          className="select select-sm w-28 px-4 text-sm
-            border border-black focus:border-base-400
-            focus:outline-none"
+          className="
+            w-36 px-3 py-2 text-sm
+            border border-border rounded-md
+            bg-background
+            focus:outline-none
+            focus:ring-2 focus:ring-brand/40
+          "
         >
           <option>FIX 4.2</option>
           <option>FIX 4.4</option>
         </select>
       </div>
-      <div className="border-b border-base-400"></div>
 
-      <div className="mt-6">
-        <div className="flex items-center justify-between mb-2">
-          <span className="text-base font-semibold text-base-content">
+      <div className="border-t border-border/70 my-2" />
+
+      <div>
+        <div className="flex items-center justify-between mb-4">
+          <span className="text-base font-semibold text-text">
             Parsed Messages
           </span>
-          <div className="px-4 py-0.5 rounded text-sm font-semibold 
-            hover:bg-base-200 cursor-pointer
-            border border-black hover:border-base-300">
-            <button className="btn btn-xs btn-outline">
-              Parse Log
-            </button>
-          </div>
 
+          <button
+            className="
+              px-4 py-1.5 text-sm font-medium
+              border border-border rounded-md
+              bg-background
+              hover:border-brand hover:text-brand
+              transition-colors
+            "
+          >
+            Parse Log
+          </button>
         </div>
 
-        <div className="overflow-hidden rounded-md">
-          <table className="table table-sm border border-base-300 border-collapse">
-            <thead className="bg-base-200 text-xs text-base-content/70">
+        <div className="overflow-hidden rounded-md border border-border">
+          <table className="min-w-full text-sm border-collapse">
+            <thead className="bg-background-muted border-b border-border text-xs text-text-muted">
               <tr>
-                <th className="border border-base-300 w-12">Seq</th>
-                <th className="border border-base-300 w-20">Msg Type</th>
-                <th className="border border-base-300">Description</th>
-                <th className="border border-base-300 w-24 text-right">Errors</th>
+                <th className="px-4 py-3 text-left w-16">Seq</th>
+                <th className="px-4 py-3 text-left w-24">Msg Type</th>
+                <th className="px-4 py-3 text-left">Description</th>
+                <th className="px-4 py-3 text-right w-24">Errors</th>
               </tr>
             </thead>
 
-            <tbody className="text-sm">
-              <tr>
-                <td className="border border-base-300">1</td>
-                <td className="border border-base-300">A</td>
-                <td className="border border-base-300">Logon</td>
-                <td className="border border-base-300 text-right text-success">OK</td>
+            <tbody>
+              <tr className="border-b border-border">
+                <td className="px-4 py-3">1</td>
+                <td className="px-4 py-3">A</td>
+                <td className="px-4 py-3">Logon</td>
+                <td className="px-4 py-3 text-right text-green-600">
+                  OK
+                </td>
               </tr>
 
-              <tr>
-                <td className="border border-base-300">2</td>
-                <td className="border border-base-300">D</td>
-                <td className="border border-base-300">New Order</td>
-                <td className="border border-base-300 text-right text-error">
+              <tr className="border-b border-border">
+                <td className="px-4 py-3">2</td>
+                <td className="px-4 py-3">D</td>
+                <td className="px-4 py-3">New Order</td>
+                <td className="px-4 py-3 text-right text-red-600">
                   2 Errors
                 </td>
               </tr>
 
               <tr>
-                <td className="border border-base-300">3</td>
-                <td className="border border-base-300">8</td>
-                <td className="border border-base-300">Execution Report</td>
-                <td className="border border-base-300 text-right text-base-content/60">
+                <td className="px-4 py-3">3</td>
+                <td className="px-4 py-3">8</td>
+                <td className="px-4 py-3">Execution Report</td>
+                <td className="px-4 py-3 text-right text-text-muted">
                   -
                 </td>
               </tr>
@@ -137,23 +152,34 @@ export default function UploadFixLog({ onContinue, onBack }: Props) {
         </div>
       </div>
 
-      <div className="flex justify-between items-center pt-4">
+      <div className="flex justify-between items-center pt-6">
         <button
           onClick={onBack}
-          className="px-3 btn btn-sm bg-primary text-primary-content border border-primary
-            hover:bg-transparent hover:text-primary transition-colors
-            flex items-center justify-center gap-2 leading-none"
+          className="
+            flex items-center gap-2
+            px-4 py-2
+            text-sm font-medium
+            border border-border rounded-md
+            bg-background
+            hover:border-brand hover:text-brand
+            transition-colors
+          "
         >
-          <ArrowLeft className="mt-[1px]" size={16} />
-          <span className="leading-none">Back</span>
+          <ArrowLeft size={16} />
+          Back
         </button>
-
 
         <button
           onClick={() => onContinue(selectedFile?.name)}
-          className="px-3 btn btn-sm bg-primary text-primary-content
-            border border-primary hover:bg-transparent hover:text-primary
-            transition-colors"
+          className="
+            px-5 py-2
+            text-sm font-semibold
+            rounded-md
+            bg-brand
+            text-white
+            hover:bg-brand-dark
+            transition-colors
+          "
         >
           Continue to Certification
         </button>

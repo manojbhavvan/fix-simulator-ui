@@ -18,7 +18,7 @@ const RULES = [
   "FIX Rule Validation",
   "AI Error Analysis",
   "Sequence Check",
-  "Generate Corrections"
+  "Generate Corrections",
 ];
 
 export default function RunCertification({
@@ -30,47 +30,39 @@ export default function RunCertification({
   const [logMode, setLogMode] = useState<
     "previous" | "uploaded" | "upload-new"
   >(
-    uploadedFileName && !allowUpload
-      ? "uploaded"
-      : "previous"
+    uploadedFileName && !allowUpload ? "uploaded" : "previous"
   );
-  const [rules, setRules] = useState({
-    fix: true,
-    ai: true,
-    sequence: true,
-  });
-
 
   const [selectedLog, setSelectedLog] = useState(DUMMY_LOGS[0]);
 
   return (
-    <div className="card bg-base-100 shadow p-6 space-y-5 w-[720px] max-w-full">
-      <h2 className="text-lg font-semibold">Run Certification</h2>
+    <div className="bg-background border border-border rounded-lg shadow-sm p-8 space-y-6 w-[720px] max-w-full">
+      
+      <h2 className="text-xl font-semibold text-brand">
+        Run Certification
+      </h2>
 
-      <div className="space-y-3">
-        <div
-          className={`
-            flex items-start justify-between gap-4
-            p-3 rounded-md border cursor-pointer
-            ${logMode === "previous"
-              ? "border-primary bg-primary/5"
-              : "border-base-300 hover:bg-base-200"
-            }
-          `}
+      <div className="space-y-4">
+        <SelectableCard
+          active={logMode === "previous"}
           onClick={() => setLogMode("previous")}
         >
           <div>
-            <p className="text-sm font-medium">Use previous log</p>
+            <p className="text-sm font-medium text-text">
+              Use previous log
+            </p>
 
             {logMode === "previous" && (
-              <div className="mt-2">
+              <div className="mt-3">
                 <select
                   className="
-                    select select-sm
-                    w-64 px-4
-                    border border-black
-                    focus:border-base-400
+                    w-64 px-3 py-2
+                    text-sm
+                    border border-border
+                    rounded-md
+                    bg-background
                     focus:outline-none
+                    focus:ring-2 focus:ring-brand/40
                   "
                   value={selectedLog}
                   onChange={(e) => setSelectedLog(e.target.value)}
@@ -84,95 +76,126 @@ export default function RunCertification({
           </div>
 
           {logMode === "previous" && (
-            <Check className="text-primary mt-1" size={18} />
+            <Check className="text-brand mt-1" size={18} />
           )}
-        </div>
+        </SelectableCard>
 
         {uploadedFileName && !allowUpload && (
-          <div
-            className={`
-              flex items-start justify-between gap-4
-              p-3 rounded-md border cursor-pointer
-              ${logMode === "uploaded"
-                ? "border-primary bg-primary/5"
-                : "border-base-300 hover:bg-base-200"
-              }
-            `}
+          <SelectableCard
+            active={logMode === "uploaded"}
             onClick={() => setLogMode("uploaded")}
           >
             <div>
-              <p className="text-sm font-medium">Uploaded log</p>
-              <p className="text-sm text-base-content/70 mt-0.5">
+              <p className="text-sm font-medium text-text">
+                Uploaded log
+              </p>
+              <p className="text-sm text-text-muted mt-1">
                 {uploadedFileName}
               </p>
             </div>
 
             {logMode === "uploaded" && (
-              <Check className="text-primary mt-1" size={18} />
+              <Check className="text-brand mt-1" size={18} />
             )}
-          </div>
+          </SelectableCard>
         )}
 
         {allowUpload && (
-          <div
-            className={`
-              flex items-start justify-between gap-4
-              p-3 rounded-md border cursor-pointer
-              ${logMode === "upload-new"
-                ? "border-primary bg-primary/5"
-                : "border-base-300 hover:bg-base-200"
-              }
-            `}
+          <SelectableCard
+            active={logMode === "upload-new"}
             onClick={() => {
               setLogMode("upload-new");
               onBack();
             }}
           >
-            <p className="text-sm font-medium">
+            <p className="text-sm font-medium text-text">
               Upload new log
             </p>
-          </div>
+          </SelectableCard>
         )}
       </div>
 
-      <div className="divider my-2" />
+      <div className="h-px bg-border" />
 
       <div className="space-y-3">
         {RULES.map((label) => (
           <label
             key={label}
-            className="flex items-center gap-3 text-sm cursor-pointer select-none"
+            className="flex items-center gap-3 text-sm cursor-pointer select-none text-text"
           >
             <input
               type="checkbox"
               defaultChecked
-              className="checkbox checkbox-sm"
+              className="w-4 h-4 border border-border
+                rounded accent-[var(--brand)]"
             />
             <span>{label}</span>
           </label>
         ))}
       </div>
 
-      <div className="flex justify-between items-center pt-4">
+      <div className="flex justify-between items-center pt-6">
         <button
           onClick={onBack}
-          className="px-3 btn btn-sm bg-primary text-primary-content
-            border border-primary hover:bg-transparent hover:text-primary
-            transition-colors flex items-center gap-2 leading-none"
+          className="
+            flex items-center gap-2
+            px-4 py-2
+            text-sm font-medium
+            border border-border
+            rounded-md
+            bg-background
+            hover:border-brand hover:text-brand
+            transition-colors
+          "
         >
           <ArrowLeft size={16} />
-          <span>Back</span>
+          Back
         </button>
 
         <button
           onClick={onRun}
-          className="px-3 btn btn-sm bg-primary text-primary-content
-            border border-primary hover:bg-transparent hover:text-primary
-            transition-colors"
+          className="
+            px-5 py-2
+            text-sm font-semibold
+            rounded-md
+            bg-brand
+            text-white
+            hover:bg-brand-dark
+            transition-colors
+          "
         >
           Run Certification
         </button>
       </div>
+    </div>
+  );
+}
+
+
+function SelectableCard({
+  active,
+  onClick,
+  children,
+}: {
+  active: boolean;
+  onClick: () => void;
+  children: React.ReactNode;
+}) {
+  return (
+    <div
+      onClick={onClick}
+      className={`
+        flex items-start justify-between gap-4
+        p-4 rounded-md border cursor-pointer
+        transition-colors
+        ${
+          active
+            ? "border-brand bg-brand/5"
+            : "border-border hover:bg-background-subtle"
+        }
+      `}
+    >
+      {children}
     </div>
   );
 }

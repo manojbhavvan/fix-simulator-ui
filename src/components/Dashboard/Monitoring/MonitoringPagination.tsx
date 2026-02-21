@@ -2,34 +2,46 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 
 export function MonitoringPagination() {
   return (
-    <div className="
-      px-4 py-2
-      border-t border-base-300
-      flex items-center justify-between
-      text-xs text-base-content/60
-    ">
-      <span>
-        1-4 of 4
+    <div
+      className="
+        px-4 py-3
+        border-t border-border
+        flex items-center justify-between
+        text-xs text-text-muted
+        bg-background
+      "
+    >
+      <span className="font-medium">
+        1–4 of 4
       </span>
 
-      <div className="flex items-center gap-1">
+      <div className="flex items-center gap-2">
         <button
-          className="
-            btn btn-xs btn-ghost
-            text-base-content/40
-            hover:text-base-content
-            disabled:opacity-30
-          "
           disabled
+          className="
+            h-7 w-7
+            flex items-center justify-center
+            rounded-md
+            border border-border
+            text-text-muted
+            bg-background-muted
+            disabled:opacity-40
+            disabled:cursor-not-allowed
+          "
         >
           <ChevronLeft className="w-4 h-4" />
         </button>
 
         <button
           className="
-            btn btn-xs btn-ghost
-            text-base-content/40
-            hover:text-base-content
+            h-7 w-7
+            flex items-center justify-center
+            rounded-md
+            border border-border
+            text-text-muted
+            bg-background-muted
+            hover:bg-brand hover:text-white hover:border-brand
+            transition-colors
           "
         >
           <ChevronRight className="w-4 h-4" />

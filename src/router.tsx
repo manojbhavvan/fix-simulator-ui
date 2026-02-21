@@ -4,6 +4,7 @@ import Dashboard from "./pages/Dashboard";
 import { Certifications } from "./pages/Certifications";
 import { CertificationResults } from "./pages/CertificationResults";
 import SimulatorConfigScreen from "./pages/SimulatorConfig";
+import Monitoring from "./pages/Monitoring";
 
 export const router = createBrowserRouter([
   {
@@ -21,6 +22,10 @@ export const router = createBrowserRouter([
       {
         path: "certifications",
         element: <Certifications />,
+      },
+      {
+        path: "monitoring",
+        element: <Monitoring/>
       },
       {
         path: "certifications/results/:id",

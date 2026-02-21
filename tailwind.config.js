@@ -4,43 +4,42 @@ export default {
     "./index.html",
     "./src/**/*.{js,ts,jsx,tsx}",
   ],
-  daisyui: {
-    themes: [
-      {
-        "fix-cert": {
-          primary: "#2563eb",
-          secondary: "#64748b",
-          accent: "#0ea5e9",
-          success: "#16a34a",
-          warning: "#f59e0b",
-          error: "#dc2626",
-          info: "#0ea5e9",
 
-          "base-100": "#ffffff",
-          "base-200": "#f8fafc",
-          "base-300": "#e2e8f0",
-          "base-content": "#0f172a",
+  theme: {
+    extend: {
+      colors: {
+        brand: {
+          DEFAULT: "#2F3A8F",
+          dark: "#1F2A72",
+          mid: "#3F4BC1",
+          light: "#EEF1FF",
+          subtle: "#F4F6FF",
+          border: "#D9DDF3",
+        },
+
+        success: "#16a34a",
+        warning: "#f59e0b",
+        error: "#dc2626",
+        info: "#0ea5e9",
+
+        background: {
+          DEFAULT: "#ffffff",
+          muted: "#f8fafc",
+          subtle: "#f1f5f9",
+        },
+
+        text: {
+          DEFAULT: "#0f172a",
+          muted: "#64748b",
+          light: "#94a3b8",
+        },
+
+        borderColor: {
+          DEFAULT: "#e2e8f0",
         },
       },
-      {
-        "fix-cert-dark": {
-          primary: "#3b82f6",
-          secondary: "#94a3b8",
-          accent: "#38bdf8",
-          success: "#22c55e",
-          warning: "#fbbf24",
-          error: "#ef4444",
-          info: "#38bdf8",
-
-          "base-100": "#0f172a",
-          "base-200": "#020617",
-          "base-300": "#1e293b",
-          "base-content": "#e5e7eb",
-        },
-      },
-    ],
+    },
   },
 
-  plugins: [require("daisyui")],
-}
-
+  plugins: [],
+};

@@ -2,30 +2,31 @@ import { monitoringSessions } from "@/mocks/monitoringSessions";
 
 export function MonitoringSidebar() {
   return (
-    <div className="border border-base-300 rounded-md h-full">
-      <div className="px-4 py-3 border-b border-base-300 text-sm font-semibold text-base-content/70">
+    <div className="border border-border rounded-lg bg-background h-full flex flex-col overflow-hidden shadow-sm">
+      <div className="px-4 py-3 border-b border-border text-sm font-semibold text-brand">
         Production Monitoring
       </div>
 
-      <ul className="divide-y divide-base-200">
+      <ul className="divide-y divide-border flex-1 overflow-auto">
         {monitoringSessions.map((s, index) => (
           <li
             key={s.id}
-            className="flex items-center gap-3 px-4 py-3 hover:bg-base-200 cursor-pointer"
+            className="flex items-center gap-3 px-4 py-3 hover:bg-background-subtle transition-colors cursor-pointer"
           >
             <span
               className="
                 w-6 h-6 flex items-center justify-center
-                text-xs font-medium
-                border border-base-300 rounded
-                text-base-content/70
+                text-[11px] font-medium
+                border border-border rounded-md
+                text-text-muted
+                bg-background-muted
               "
             >
               {index + 1}
             </span>
-            <span className="text-sm">
+            <span className="text-sm text-text font-medium">
               {s.source} → {s.target}
-              <span className="ml-1 text-xs text-base-content/60">
+              <span className="ml-2 text-[11px] text-text-muted">
                 ({s.version})
               </span>
             </span>

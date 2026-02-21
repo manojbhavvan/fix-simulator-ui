@@ -14,62 +14,72 @@ export function CertificationResults() {
 
   const [activeTab, setActiveTab] = useState<TabKey>("details");
   const [selectedMessage, setSelectedMessage] = useState(
-    data.messages.find(m => m.status === "FAIL") || data.messages[0]
+    data.messages.find((m) => m.status === "FAIL") ||
+      data.messages[0]
   );
 
   return (
-    <div className="p-6 h-[calc(100vh-64px)]">
-      <div className="card bg-base-100 border h-full flex flex-col overflow-hidden">
-        <div className="p-5 border-b border-base-300 shrink-0 mb-4">
-          <div className="flex items-center gap-2 text-sm">
-            <BackButton />
-            <div className="self-stretch w-px bg-gray-300" />
-            <span className="font-semibold text-base-content/80">
-              Certification Results:
-            </span>
-            <span className="text-base-content/60">
-              {data.logId}
-            </span>
+    <div className="min-h-screen bg-background px-6 py-8">
+      <div className="max-w-7xl mx-auto h-[calc(100vh-140px)] flex flex-col">
+        <div className="border border-border rounded-lg bg-background shadow-sm flex flex-col overflow-hidden h-full">
+          <div className="px-6 py-5 border-b border-border">
+            <div className="flex items-center gap-3 text-sm">
+              <BackButton />
+              <div className="w-px h-5 bg-border" />
+              <span className="font-semibold text-brand">
+                Certification Results
+              </span>
+              <span className="text-text-muted">
+                {data.logId}
+              </span>
+            </div>
           </div>
-        </div>
 
-        <div className="card-body p-0 flex flex-col flex-1 min-h-0">
+          <div className="flex flex-col flex-1 min-h-0">
 
-          <Tabs active={activeTab} onChange={setActiveTab} />
-
-          <div className="grid grid-cols-12 gap-4 mt-4 flex-1 min-h-0">
-
-            <div className="col-span-3 overflow-y-auto">
-              <MessageList
-                messages={data.messages}
-                selected={selectedMessage}
-                onSelect={setSelectedMessage}
-              />
+            <div className="px-6 pt-4">
+              <Tabs active={activeTab} onChange={setActiveTab} />
             </div>
 
-            <div className="col-span-9 min-h-0">
-              <div className="card bg-base-100 border h-full flex flex-col">
-                
-                <div className="card-body flex-1 min-h-0 overflow-y-auto">
+            <div className="grid grid-cols-12 gap-6 px-6 py-6 flex-1 min-h-0">
 
-                  {activeTab === "details" && (
-                    <MessageDetails message={selectedMessage} />
-                  )}
+              <div className="col-span-3 min-h-0">
+                <MessageList
+                  messages={data.messages}
+                  selected={selectedMessage}
+                  onSelect={setSelectedMessage}
+                />
+              </div>
 
-                  {activeTab === "sequence" && (
-                    <SequenceFlowView flow={data.sequenceFlow} />
-                  )}
+              <div className="col-span-9 min-h-0">
+                <div className="border border-border rounded-lg bg-background h-full flex flex-col shadow-sm">
 
-                  {activeTab === "raw" && (
-                    <pre className="bg-neutral text-neutral-content p-4 rounded text-sm">
-                      {`8=FIX.4.2|9=176|35=D|49=CLIENT1|56=HUB1|55=AAPL|54=1|38=100|40=2|10=128`}
-                    </pre>
-                  )}
+                  <div className="flex-1 min-h-0 overflow-auto p-6">
 
-                  {activeTab === "ai" && (
-                    <MessageAnalysis message={selectedMessage} />
-                  )}
+                    {activeTab === "details" && (
+                      <MessageDetails message={selectedMessage} />
+                    )}
 
+                    {activeTab === "sequence" && (
+                      <SequenceFlowView flow={data.sequenceFlow} />
+                    )}
+
+                    {activeTab === "raw" && (
+                      <div className="border border-border rounded-md bg-background-muted">
+                        <div className="px-4 py-2 border-b border-border text-sm font-medium text-brand">
+                          Raw FIX Message
+                        </div>
+                        <pre className="px-4 py-4 text-xs font-mono text-text overflow-x-auto">
+                          {`8=FIX.4.2|9=176|35=D|49=CLIENT1|56=HUB1|55=AAPL|54=1|38=100|40=2|10=128`}
+                        </pre>
+                      </div>
+                    )}
+
+                    {activeTab === "ai" && (
+                      <MessageAnalysis message={selectedMessage} />
+                    )}
+
+                  </div>
                 </div>
               </div>
             </div>

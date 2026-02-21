@@ -21,10 +21,18 @@ export function Navbar() {
     width: 0,
   });
 
-  const isCertificationsRoute = location.pathname.startsWith("/certifications");
-  const isDashboardRoute =
-    location.pathname === "/" || location.pathname === "/dashboard";
+  // Sync active tab with route
+  useEffect(() => {
+    if (location.pathname.startsWith("/certifications")) {
+      setActive("fileUpload");
+    } else if (location.pathname.startsWith("/monitoring")) {
+      setActive("monitoring");
+    } else {
+      setActive("dashboard");
+    }
+  }, [location.pathname]);
 
+  // Navbar height
   useEffect(() => {
     if (!navRef.current) return;
     const height = navRef.current.offsetHeight;
@@ -34,56 +42,7 @@ export function Navbar() {
     );
   }, []);
 
-  useEffect(() => {
-    if (isCertificationsRoute) {
-      setActive("fileUpload");
-    }
-  }, [isCertificationsRoute]);
-
-  useEffect(() => {
-    if (!isDashboardRoute) return;
-
-    const dashboard = document.getElementById("dashboard");
-    const monitoring = document.getElementById("monitoring");
-
-    if (!dashboard || !monitoring) return;
-
-    const navbarHeight =
-      parseInt(
-        getComputedStyle(document.documentElement)
-          .getPropertyValue("--navbar-height")
-      ) || 0;
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        const dashboardEntry = entries.find(
-          (e) => e.target.id === "dashboard"
-        );
-        const monitoringEntry = entries.find(
-          (e) => e.target.id === "monitoring"
-        );
-
-        if (monitoringEntry?.isIntersecting) {
-          setActive("monitoring");
-          return;
-        }
-
-        if (dashboardEntry?.isIntersecting) {
-          setActive("dashboard");
-        }
-      },
-      {
-        rootMargin: `-${navbarHeight}px 0px -60% 0px`,
-        threshold: 0,
-      }
-    );
-
-    observer.observe(dashboard);
-    observer.observe(monitoring);
-
-    return () => observer.disconnect();
-  }, [isDashboardRoute]);
-
+  // Underline animation
   useEffect(() => {
     const el = tabsRef.current[active];
     if (!el) return;
@@ -97,78 +56,39 @@ export function Navbar() {
   return (
     <div
       ref={navRef}
-      className="sticky top-0 z-50 bg-base-100 border-b border-base-300 shadow-sm"
+      className="sticky top-0 z-50 bg-background border-b border-border shadow-sm"
     >
-      {/* Title */}
-      <div className="px-6 py-3 border-b border-base-200">
-        <span className="text-lg font-semibold">
-          AI FIX Certification Tool
-        </span>
+      <div className="px-6 py-4 border-b border-border bg-background flex items-center">
+        <h1 className="text-2xl font-semibold text-brand tracking-tight">
+          Intelli<span className="text-text">FIX</span>
+        </h1>
       </div>
 
-      {/* Tabs */}
       <div className="px-6 relative">
-        <div className="flex gap-6 text-sm relative">
-          {/* Dashboard */}
+        <div className="flex gap-8 text-sm relative">
           <NavItem
             ref={(el) => (tabsRef.current.dashboard = el)}
             label="Dashboard"
             active={active === "dashboard"}
-            onClick={() => {
-              setActive("dashboard");
-
-              if (isCertificationsRoute) {
-                navigate("/dashboard");
-                return;
-              }
-
-              document
-                .getElementById("dashboard")
-                ?.scrollIntoView({ behavior: "smooth" });
-            }}
+            onClick={() => navigate("/dashboard")}
           />
 
-          {/* File Upload */}
-          <div
+          <NavItem
             ref={(el) => (tabsRef.current.fileUpload = el)}
-            className={`py-3 cursor-pointer ${
-              active === "fileUpload"
-                ? "text-base-content"
-                : "text-base-content/70 hover:text-base-content"
-            }`}
+            label="File Upload"
+            active={active === "fileUpload"}
             onClick={() => navigate("/certifications")}
-          >
-            File Upload
-          </div>
+          />
 
-          {/* Monitoring */}
           <NavItem
             ref={(el) => (tabsRef.current.monitoring = el)}
             label="Monitoring"
             active={active === "monitoring"}
-            onClick={() => {
-              setActive("monitoring");
-
-              if (isCertificationsRoute) {
-                navigate("/dashboard");
-                setTimeout(() => {
-                  document
-                    .getElementById("monitoring")
-                    ?.scrollIntoView({ behavior: "smooth" });
-                }, 50);
-                return;
-              }
-
-              document
-                .getElementById("monitoring")
-                ?.scrollIntoView({ behavior: "smooth" });
-            }}
+            onClick={() => navigate("/monitoring")}
           />
 
-          {/* Underline */}
           <span
-            className="absolute bottom-0 h-[2px] bg-primary rounded
-                       transition-all duration-300 ease-out"
+            className="absolute bottom-0 h-[2px] bg-brand rounded transition-all duration-300 ease-out"
             style={{
               left: underlineStyle.left,
               width: underlineStyle.width,

@@ -54,40 +54,29 @@ export function RecentCertifications() {
 
   const totalPages = Math.ceil(data.length / ITEMS_PER_PAGE);
   const startIndex = (page - 1) * ITEMS_PER_PAGE;
-  const paginatedData = data.slice(
-    startIndex,
-    startIndex + ITEMS_PER_PAGE
-  );
+  const paginatedData = data.slice(startIndex, startIndex + ITEMS_PER_PAGE);
 
   return (
     <div>
-      <h3 className="text-base font-semibold text-base-content/80 pb-4">
+      <h2 className="text-lg font-semibold tracking-wide text-brand pb-4">
         Recent Certifications
-      </h3>
+      </h2>
 
-      <div className="overflow-hidden rounded-md border border-base-300">
-        <table className="table table-sm">
-          <thead className="bg-base-200 border-b border-base-300">
-            <tr>
-              <th className="text-xs font-semibold text-base-content/70">
-                File
-              </th>
-              <th className="text-xs font-semibold text-base-content/70">
-                Version
-              </th>
-              <th className="text-xs font-semibold text-base-content/70">
-                Created
-              </th>
-              <th className="text-xs font-semibold text-base-content/70">
-                Modified
-              </th>
+      <div className="overflow-hidden rounded-lg border border-border bg-background shadow-sm">
+        <table className="min-w-full text-sm">
+          <thead className="bg-background-muted border-b border-border">
+            <tr className="text-left text-xs font-normal text-text-muted tracking-wide">
+              <th className="px-4 py-3">File</th>
+              <th className="px-4 py-3">Version</th>
+              <th className="px-4 py-3">Created</th>
+              <th className="px-4 py-3">Modified</th>
             </tr>
           </thead>
 
           <tbody>
             {loading && (
               <tr>
-                <td colSpan={4} className="text-center py-4">
+                <td colSpan={4} className="text-center py-6 text-text-muted">
                   Loading...
                 </td>
               </tr>
@@ -95,7 +84,7 @@ export function RecentCertifications() {
 
             {!loading && paginatedData.length === 0 && (
               <tr>
-                <td colSpan={4} className="text-center py-4">
+                <td colSpan={4} className="text-center py-6 text-text-muted">
                   No data available
                 </td>
               </tr>
@@ -109,25 +98,26 @@ export function RecentCertifications() {
         </table>
       </div>
       {totalPages > 1 && (
-        <div className="flex justify-end items-center gap-3 mt-4">
+        <div className="flex justify-end items-center gap-4 mt-4">
           <button
-            className="h-8 w-8 flex items-center justify-center rounded-md border border-base-300 bg-base-100 shadow-sm hover:bg-base-200 transition"
+            className="h-8 w-8 flex items-center justify-center rounded-md border border-border bg-background hover:bg-brand hover:text-white transition"
             disabled={page === 1}
             onClick={() => setPage((p) => p - 1)}
           >
-            <ChevronLeft size={18} />
+            <ChevronLeft size={16} />
           </button>
 
-          <span className="text-sm font-medium leading-none">
-            Page {page} of {totalPages}
+          <span className="text-sm text-text-muted">
+            Page <span className="font-medium text-text">{page}</span> of{" "}
+            <span className="font-medium text-text">{totalPages}</span>
           </span>
 
           <button
-            className="h-8 w-8 flex items-center justify-center rounded-md border border-base-300 bg-base-100 shadow-sm hover:bg-base-200 transition"
+            className="h-8 w-8 flex items-center justify-center rounded-md border border-border bg-background hover:bg-brand hover:text-white transition"
             disabled={page === totalPages}
             onClick={() => setPage((p) => p + 1)}
           >
-            <ChevronRight size={18} />
+            <ChevronRight size={16} />
           </button>
         </div>
       )}
@@ -153,13 +143,17 @@ function Row({ item }: { item: Simulation }) {
     });
 
   return (
-    <tr className="hover:bg-base-200 transition-colors cursor-pointer">
-      <td className="font-medium">{fileName}</td>
-      <td>{formatVersion(item.fixVersion)}</td>
-      <td className="text-base-content/70">
+    <tr className="border-b border-border hover:bg-background-subtle transition-colors text-xs">
+      <td className="px-4 py-3 font-medium text-text">
+        {fileName}
+      </td>
+      <td className="px-4 py-3 text-text-muted">
+        {formatVersion(item.fixVersion)}
+      </td>
+      <td className="px-4 py-3 text-text-muted">
         {formatDate(item.dateCreated)}
       </td>
-      <td className="text-base-content/70">
+      <td className="px-4 py-3 text-text-muted">
         {formatDate(item.dateModified)}
       </td>
     </tr>
