@@ -1,13 +1,26 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { API_BASE_URL } from "../../config/api";
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { ChevronLeft, ChevronRight } from "lucide-react";
 
+type FixVersion = {
+  fixVersionId?: number;
+  fixVersionName?: string;
+  description?: string;
+} | null;
+
+type UploadLog = {
+  uploadId: number;
+  fileName: string;
+  filePath: string;
+  uploadStatus: string;
+  dateCreated: string;
+} | null;
 
 type Simulation = {
   simId: number;
-  fixVersion: string | null;
-  logPath: string;
+  fixVersion: FixVersion;
+  uploadLog: UploadLog;
   dateCreated: string;
   dateModified: string;
 };
@@ -28,7 +41,7 @@ export function RecentCertifications() {
       setLoading(true);
 
       const response = await axios.get<Simulation[]>(
-        `${API_BASE_URL}/simulation/all`
+        `${API_BASE_URL}/rest/simulation/all`
       );
 
       setData(response.data || []);
@@ -98,11 +111,7 @@ export function RecentCertifications() {
       {totalPages > 1 && (
         <div className="flex justify-end items-center gap-3 mt-4">
           <button
-            className="h-8 w-8 flex items-center justify-center 
-                 rounded-md border border-base-300 
-                 bg-base-100 shadow-sm 
-                 hover:bg-base-200 
-                 transition"
+            className="h-8 w-8 flex items-center justify-center rounded-md border border-base-300 bg-base-100 shadow-sm hover:bg-base-200 transition"
             disabled={page === 1}
             onClick={() => setPage((p) => p - 1)}
           >
@@ -114,11 +123,7 @@ export function RecentCertifications() {
           </span>
 
           <button
-            className="h-8 w-8 flex items-center justify-center 
-                 rounded-md border border-base-300 
-                 bg-base-100 shadow-sm 
-                 hover:bg-base-200 
-                 transition"
+            className="h-8 w-8 flex items-center justify-center rounded-md border border-base-300 bg-base-100 shadow-sm hover:bg-base-200 transition"
             disabled={page === totalPages}
             onClick={() => setPage((p) => p + 1)}
           >
@@ -131,14 +136,11 @@ export function RecentCertifications() {
 }
 
 function Row({ item }: { item: Simulation }) {
-  const fileName =
-    item.logPath?.split("/").pop() || "-";
+  const fileName = item.uploadLog?.fileName ?? "-";
 
-  const formatVersion = (version: string | null) => {
+  const formatVersion = (version: FixVersion) => {
     if (!version) return "-";
-
-    const match = version.match(/FIX\d+/i);
-    return match ? match[0] : version;
+    return version.fixVersionName ?? "-";
   };
 
   const formatDate = (date: string) =>

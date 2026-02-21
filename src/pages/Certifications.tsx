@@ -43,7 +43,7 @@ export function Certifications() {
       };
 
       const { data } = await axios.post(
-        `${API_BASE_URL}/simulation`,
+        `${API_BASE_URL}/rest/simulation`,
         payload,
         {
           headers: {

@@ -5,7 +5,7 @@ function App() {
   return (
     <div className="min-h-screen bg-base-100">
       <Navbar />
-      <main className="pt-4">
+      <main>
         <Outlet />
       </main>
     </div>
