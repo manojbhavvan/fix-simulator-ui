@@ -197,45 +197,47 @@ export default function SimulatorConfigScreen() {
         </div>
 
         <Section title="Basic Information">
-          <InputField
-            label="Simulator Config Name"
-            value={form.simulatorConfigName}
-            error={errors.simulatorConfigName}
-            onBlur={() => handleBlur("simulatorConfigName")}
-            onChange={(v) => handleChange("simulatorConfigName", v)}
-          />
+          <div className="col-span-2 grid grid-cols-3 gap-6">
+            <InputField
+              label="Simulator Config Name"
+              value={form.simulatorConfigName}
+              error={errors.simulatorConfigName}
+              onBlur={() => handleBlur("simulatorConfigName")}
+              onChange={(v) => handleChange("simulatorConfigName", v)}
+            />
 
-          <SelectField
-            label="Simulator Config Type"
-            value={form.simulatorConfigType}
-            onChange={(v) =>
-              handleChange("simulatorConfigType", v as SimulatorConfigType)
-            }
-            options={[
-              { value: "CLIENT", label: "CLIENT" },
-              { value: "BROKER", label: "BROKER" },
-            ]}
-          />
+            <SelectField
+              label="Simulator Config Type"
+              value={form.simulatorConfigType}
+              onChange={(v) =>
+                handleChange("simulatorConfigType", v as SimulatorConfigType)
+              }
+              options={[
+                { value: "CLIENT", label: "CLIENT" },
+                { value: "BROKER", label: "BROKER" },
+              ]}
+            />
 
-          <SelectField
-            label="FIX Version"
-            value={form.fixVersion?.fixVersionId?.toString() ?? ""}
-            error={errors.fixVersion}
-            onBlur={() => handleBlur("fixVersion")}
-            onChange={(v) => {
-              const selected = fixVersions.find(
-                (f) => f.fixVersionId === Number(v)
-              );
-              handleChange("fixVersion", selected ?? null);
-            }}
-            options={[
-              { value: "", label: "Select FIX Version" },
-              ...fixVersions.map((v) => ({
-                value: v.fixVersionId.toString(),
-                label: v.fixVersionName,
-              })),
-            ]}
-          />
+            <SelectField
+              label="FIX Version"
+              value={form.fixVersion?.fixVersionId?.toString() ?? ""}
+              error={errors.fixVersion}
+              onBlur={() => handleBlur("fixVersion")}
+              onChange={(v) => {
+                const selected = fixVersions.find(
+                  (f) => f.fixVersionId === Number(v)
+                );
+                handleChange("fixVersion", selected ?? null);
+              }}
+              options={[
+                { value: "", label: "Select FIX Version" },
+                ...fixVersions.map((v) => ({
+                  value: v.fixVersionId.toString(),
+                  label: v.fixVersionName,
+                })),
+              ]}
+            />
+          </div>
         </Section>
 
         <Section title="Connection Information">
@@ -285,11 +287,10 @@ export default function SimulatorConfigScreen() {
           <button
             onClick={handleSave}
             disabled={!isFormValid || loading}
-            className={`h-10 px-6 text-sm font-medium rounded-md text-white transition ${
-              isFormValid
+            className={`h-10 px-6 text-sm font-medium rounded-md text-white transition ${isFormValid
                 ? "bg-[#465391] hover:bg-[#3b457a]"
                 : "bg-[#465391]/50 cursor-not-allowed"
-            }`}
+              }`}
           >
             {loading ? "Saving..." : "Save Configuration"}
           </button>
@@ -299,11 +300,10 @@ export default function SimulatorConfigScreen() {
       {toast && (
         <div className="fixed top-6 left-1/2 -translate-x-1/2 z-50 w-full max-w-md px-4">
           <div
-            className={`flex items-start gap-3 p-4 rounded-xl border shadow-lg ${
-              toast.type === "success"
+            className={`flex items-start gap-3 p-4 rounded-xl border shadow-lg ${toast.type === "success"
                 ? "bg-green-50 border-green-300"
                 : "bg-red-50 border-red-300"
-            }`}
+              }`}
           >
             <div className="mt-1">
               {toast.type === "success" ? (
