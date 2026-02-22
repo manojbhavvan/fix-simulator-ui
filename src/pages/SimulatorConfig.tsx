@@ -271,7 +271,7 @@ export default function SimulatorConfigScreen() {
           />
           <InputField
             label="Socket Connect Port"
-            type="number"
+            type="text"
             value={form.socketConnectPort}
             error={errors.socketConnectPort}
             onBlur={() => handleBlur("socketConnectPort")}
