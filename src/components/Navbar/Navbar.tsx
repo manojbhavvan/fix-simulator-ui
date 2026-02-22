@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { NavItem } from "./NavItem";
 
-type TabKey = "dashboard" | "fileUpload" | "monitoring";
+type TabKey = "dashboard" | "fileUpload" | "monitoring" | "simconfig";
 
 export function Navbar() {
   const navRef = useRef<HTMLDivElement>(null);
@@ -13,6 +13,7 @@ export function Navbar() {
     dashboard: null,
     fileUpload: null,
     monitoring: null,
+    simconfig: null,
   });
 
   const [active, setActive] = useState<TabKey>("dashboard");
@@ -27,7 +28,10 @@ export function Navbar() {
       setActive("fileUpload");
     } else if (location.pathname.startsWith("/monitoring")) {
       setActive("monitoring");
-    } else {
+    } else if (location.pathname.startsWith("/simulator/config")){
+      setActive("simconfig");
+    }
+    else {
       setActive("dashboard");
     }
   }, [location.pathname]);
@@ -88,8 +92,15 @@ export function Navbar() {
           />
 
           <NavItem
+            ref={(el) => (tabsRef.current.simconfig = el)}
+            label="Simulator Configuration"
+            active={active === "simconfig"}
+            onClick={() => navigate("/simulator/config")}
+          />
+
+          <NavItem
             ref={(el) => (tabsRef.current.fileUpload = el)}
-            label="Simulation"
+            label="Certification"
             active={active === "fileUpload"}
             onClick={() => navigate("/certifications")}
           />
