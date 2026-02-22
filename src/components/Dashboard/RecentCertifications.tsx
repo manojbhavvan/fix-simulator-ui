@@ -55,72 +55,76 @@ export function RecentCertifications() {
   const totalPages = Math.ceil(data.length / ITEMS_PER_PAGE);
   const startIndex = (page - 1) * ITEMS_PER_PAGE;
   const paginatedData = data.slice(startIndex, startIndex + ITEMS_PER_PAGE);
+  const emptyRows = ITEMS_PER_PAGE - paginatedData.length;
 
   return (
-    <div>
+    <div className="flex flex-col h-full">
       <h2 className="text-lg font-semibold tracking-wide text-brand pb-4">
         Recent Certifications
       </h2>
 
-      <div className="overflow-hidden rounded-lg border border-border bg-background shadow-sm">
-        <table className="min-w-full text-sm">
-          <thead className="bg-background-muted border-b border-border">
-            <tr className="text-left text-xs font-normal text-text-muted tracking-wide">
-              <th className="px-4 py-3">File</th>
-              <th className="px-4 py-3">Version</th>
-              <th className="px-4 py-3">Created Date</th>
-              <th className="px-4 py-3">Modified Date</th>
-            </tr>
-          </thead>
-
-          <tbody>
-            {loading && (
-              <tr>
-                <td colSpan={4} className="text-center py-6 text-text-muted">
-                  Loading...
-                </td>
+      <div className="flex flex-col flex-1">
+        <div className="flex-1 overflow-hidden rounded-lg border border-border bg-background shadow-sm">
+          <table className="min-w-full text-sm">
+            <thead className="bg-background-muted border-b border-border">
+              <tr className="text-left text-xs font-normal text-text-muted tracking-wide">
+                <th className="px-4 py-3">File</th>
+                <th className="px-4 py-3">Version</th>
+                <th className="px-4 py-3">Created Date</th>
+                <th className="px-4 py-3">Modified Date</th>
               </tr>
-            )}
+            </thead>
 
-            {!loading && paginatedData.length === 0 && (
-              <tr>
-                <td colSpan={4} className="text-center py-6 text-text-muted">
-                  No data available
-                </td>
-              </tr>
-            )}
+            <tbody>
+              {loading && (
+                <tr>
+                  <td colSpan={4} className="text-center py-6 text-text-muted">
+                    Loading...
+                  </td>
+                </tr>
+              )}
 
-            {!loading &&
-              paginatedData.map((item) => (
-                <Row key={item.simId} item={item} />
-              ))}
-          </tbody>
-        </table>
-      </div>
-      {totalPages > 1 && (
-        <div className="flex justify-end items-center gap-4 mt-4">
-          <button
-            className="h-8 w-8 flex items-center justify-center rounded-md border border-border bg-background hover:bg-brand hover:text-white transition"
-            disabled={page === 1}
-            onClick={() => setPage((p) => p - 1)}
-          >
-            <ChevronLeft size={16} />
-          </button>
+              {!loading && paginatedData.length === 0 && (
+                <tr>
+                  <td colSpan={4} className="text-center py-6 text-text-muted">
+                    No data available
+                  </td>
+                </tr>
+              )}
 
-          <span className="text-sm text-text-muted">
-            Page <span className="font-medium text-text">{page}</span> of{" "}
-            <span className="font-medium text-text">{totalPages}</span>
-          </span>
-
-          <button
-            className="h-8 w-8 flex items-center justify-center rounded-md border border-border bg-background hover:bg-brand hover:text-white transition"
-            disabled={page === totalPages}
-            onClick={() => setPage((p) => p + 1)}
-          >
-            <ChevronRight size={16} />
-          </button>
+              {!loading &&
+                paginatedData.map((item) => (
+                  <Row key={item.simId} item={item} />
+                ))}
+            </tbody>
+          </table>
         </div>
-      )}
+
+        {totalPages > 1 && (
+          <div className="flex justify-end items-center gap-4 mt-4 shrink-0">
+            <button
+              className="h-8 w-8 flex items-center justify-center rounded-md border border-border bg-background hover:bg-brand hover:text-white transition"
+              disabled={page === 1}
+              onClick={() => setPage((p) => p - 1)}
+            >
+              <ChevronLeft size={16} />
+            </button>
+
+            <span className="text-sm text-text-muted">
+              Page <span className="font-medium text-text">{page}</span> of{" "}
+              <span className="font-medium text-text">{totalPages}</span>
+            </span>
+
+            <button
+              className="h-8 w-8 flex items-center justify-center rounded-md border border-border bg-background hover:bg-brand hover:text-white transition"
+              disabled={page === totalPages}
+              onClick={() => setPage((p) => p + 1)}
+            >
+              <ChevronRight size={16} />
+            </button>
+          </div>
+        )}
+      </div>
     </div>
   );
 }

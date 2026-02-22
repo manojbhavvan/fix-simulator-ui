@@ -3,7 +3,7 @@ import { FixSessionList } from "./FixSessionList";
 
 export function FixSessionHealth() {
   return (
-    <div className="border border-border rounded-lg bg-background shadow-sm h-full flex flex-col">
+    <div className="h-full flex flex-col">
       <div className="p-6 border-b border-border">
         <FixSessionSummary />
       </div>
