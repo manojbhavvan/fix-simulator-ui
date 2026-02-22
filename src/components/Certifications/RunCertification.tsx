@@ -131,7 +131,7 @@ export default function RunCertification({
     selectedSimulator && selectedFixVersion && selectedUploadLog;
 
   return (
-    <div className="bg-background border border-border rounded-lg shadow-sm p-8 space-y-6 w-[720px] max-w-full">
+    <div className="bg-background border border-border rounded-lg shadow-sm p-8 space-y-6 w-[900px] max-w-full mx-auto">
 
       <h2 className="text-xl font-semibold text-brand">
         Run Certification
