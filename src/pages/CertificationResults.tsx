@@ -185,14 +185,7 @@ export function CertificationResults() {
 
   const backendStatus = selectedSession?.currentStatus?.status ?? "INACTIVE";
 
-  const statusBadgeClass =
-    backendStatus === "ACTIVE"
-      ? "bg-green-100 text-green-700"
-      : backendStatus === "IN_PROGRESS"
-        ? "bg-indigo-100 text-indigo-700"
-        : backendStatus === "COMPLETED"
-          ? "bg-blue-100 text-blue-700"
-          : "bg-red-100 text-red-600";
+  const statusBadgeClass = "bg-blue-100 text-blue-700";
 
   return (
     <div className="bg-background px-6 py-8">
