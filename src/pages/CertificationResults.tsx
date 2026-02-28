@@ -2,6 +2,8 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useParams } from "react-router-dom";
 import axios from "axios";
 import { ChevronDown, ArrowRight } from "lucide-react";
+import SockJS from "sockjs-client";
+import { Client, IMessage } from "@stomp/stompjs";
 import { Tabs } from "@/components/CertificationResults/Tabs";
 import { MessageList } from "@/components/CertificationResults/MessageList";
 import { MessageAnalysis } from "@/components/CertificationResults/MessageAnalysis";
@@ -58,9 +60,11 @@ export function CertificationResults() {
   const [activeTab, setActiveTab] = useState<TabKey>("details");
   const [dropdownOpen, setDropdownOpen] = useState(false);
 
+  const [lastHeartbeatTime, setLastHeartbeatTime] = useState<Date | null>(null);
   const [sessionStatus, setSessionStatus] = useState<"ACTIVE" | "INACTIVE">("INACTIVE");
-  const lastHeartbeatRef = useRef<number>(Date.now());
+  const [isLive, setIsLive] = useState(false);
 
+  const healthClientRef = useRef<Client | null>(null);
   const dropdownRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
@@ -105,45 +109,70 @@ export function CertificationResults() {
   }, [sessionMessages]);
 
   useEffect(() => {
-    if (!selectedSession?.messages) return;
+    if (!id || !selectedSession?.fixSessionId) return;
 
-    const messages = selectedSession.messages;
+    const client = new Client({
+      webSocketFactory: () => new SockJS("/ws"),
+      reconnectDelay: 5000,
+    });
 
-    const logoutExists = messages.some((m) => m.msgType === "5");
-    if (logoutExists) {
-      setSessionStatus("INACTIVE");
-      return;
-    }
+    client.onConnect = () => {
+      const topic = `/topic/health/${id}/${selectedSession.fixSessionId}`;
 
-    const heartbeats = messages.filter((m) => m.msgType === "0");
+      client.subscribe(topic, (msg: IMessage) => {
+        try {
+          const data = JSON.parse(msg.body);
+          const rawMessage: string = data.message;
 
-    if (heartbeats.length > 0) {
-      lastHeartbeatRef.current = Date.now();
-      setSessionStatus("ACTIVE");
-    } else {
-      setSessionStatus("INACTIVE");
-    }
-  }, [selectedSession]);
+          if (rawMessage.includes("35=0")) {
+            const now = new Date();
+            setLastHeartbeatTime(now);
+            setIsLive(true);
+          }
+        } catch (err) {
+          console.error("Heartbeat parse error", err);
+        }
+      });
+    };
+
+    client.activate();
+    healthClientRef.current = client;
+
+    return () => {
+      client.deactivate();
+    };
+  }, [id, selectedSession?.fixSessionId]);
 
   useEffect(() => {
     const interval = setInterval(() => {
-      const diff = Date.now() - lastHeartbeatRef.current;
+      if (!lastHeartbeatTime) return;
+
+      const diff = Date.now() - lastHeartbeatTime.getTime();
+
       if (diff > 60000) {
-        setSessionStatus("INACTIVE");
+        setIsLive(false);
       }
     }, 1000);
 
     return () => clearInterval(interval);
-  }, []);
+  }, [lastHeartbeatTime]);
+
+  useEffect(() => {
+    setSessionStatus(isLive ? "ACTIVE" : "INACTIVE");
+  }, [isLive]);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target as Node)
+      ) {
         setDropdownOpen(false);
       }
     };
     document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
+    return () =>
+      document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
   if (loading) {
@@ -237,8 +266,55 @@ export function CertificationResults() {
                       <SequenceFlowView session={selectedSession} />
                     )}
                     {activeTab === "heartbeat" && (
-                      <div className="text-sm text-text-muted">
-                        Heartbeat analysis coming soon...
+                      <div className="max-w-md">
+                        <div className="border border-border rounded-lg shadow-sm p-6 bg-background space-y-4">
+                          <div className="flex items-center justify-between">
+                            <span className="text-sm font-semibold text-text">
+                              Session Live Status
+                            </span>
+
+                            <div className="flex items-center gap-2">
+                              <span
+                                className={`w-3 h-3 rounded-full ${isLive ? "bg-green-500" : "bg-red-500"
+                                  }`}
+                              />
+                              <span
+                                className={`text-sm font-medium ${isLive
+                                    ? "text-green-600"
+                                    : "text-red-600"
+                                  }`}
+                              >
+                                {isLive ? "Live" : "Disconnected"}
+                              </span>
+                            </div>
+                          </div>
+
+                          <div className="h-px bg-border" />
+
+                          <div>
+                            <p className="text-xs text-text-muted">
+                              Last Heartbeat
+                            </p>
+
+                            <p className="text-sm font-medium text-text mt-1">
+                              {lastHeartbeatTime
+                                ? lastHeartbeatTime.toLocaleString()
+                                : "No heartbeat received yet"}
+                            </p>
+                          </div>
+
+                          {isLive && (
+                            <p className="text-xs text-green-600">
+                              Receiving heartbeat every ~30 seconds
+                            </p>
+                          )}
+
+                          {!isLive && lastHeartbeatTime && (
+                            <p className="text-xs text-red-600">
+                              No heartbeat received for 60 seconds
+                            </p>
+                          )}
+                        </div>
                       </div>
                     )}
                     {activeTab === "ai" && (
