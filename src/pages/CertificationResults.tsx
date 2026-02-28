@@ -30,7 +30,7 @@ type SimulationMessage = {
 type SimulationSession = {
   simSessionId: number;
   fixSessionId: string;
-  status: string;
+  status?: string;
   messages: SimulationMessage[];
 };
 
@@ -72,17 +72,10 @@ export function CertificationResults() {
   const [activeTab, setActiveTab] = useState<TabKey>("details");
   const [dropdownOpen, setDropdownOpen] = useState(false);
 
-  const dropdownRef = useRef<HTMLDivElement | null>(null);
+  const [sessionStatus, setSessionStatus] = useState<"ACTIVE" | "INACTIVE">("INACTIVE");
+  const lastHeartbeatRef = useRef<number>(Date.now());
 
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
-        setDropdownOpen(false);
-      }
-    };
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
+  const dropdownRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     if (!id) return;
@@ -125,6 +118,48 @@ export function CertificationResults() {
     setSelectedMessage(sessionMessages[0] ?? null);
   }, [sessionMessages]);
 
+  useEffect(() => {
+    if (!selectedSession?.messages) return;
+
+    const messages = selectedSession.messages;
+
+    const logoutExists = messages.some((m) => m.msgType === "5");
+    if (logoutExists) {
+      setSessionStatus("INACTIVE");
+      return;
+    }
+
+    const heartbeats = messages.filter((m) => m.msgType === "0");
+
+    if (heartbeats.length > 0) {
+      lastHeartbeatRef.current = Date.now();
+      setSessionStatus("ACTIVE");
+    } else {
+      setSessionStatus("INACTIVE");
+    }
+  }, [selectedSession]);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const diff = Date.now() - lastHeartbeatRef.current;
+      if (diff > 60000) {
+        setSessionStatus("INACTIVE");
+      }
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, []);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setDropdownOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center text-text-muted">
@@ -132,6 +167,11 @@ export function CertificationResults() {
       </div>
     );
   }
+
+  const statusBadgeClass =
+    sessionStatus === "ACTIVE"
+      ? "bg-green-100 text-green-700"
+      : "bg-red-100 text-red-600";
 
   return (
     <div className="bg-background px-6 py-8">
@@ -147,16 +187,9 @@ export function CertificationResults() {
               <span className="text-text-muted">
                 Simulation ID: {id}
               </span>
-              {selectedSession && (
-                <span
-                  className={`px-3 py-1 rounded-full text-xs font-semibold ${selectedSession.status === "ACTIVE"
-                      ? "bg-green-100 text-green-700"
-                      : "bg-gray-200 text-gray-600"
-                    }`}
-                >
-                  {selectedSession.status}
-                </span>
-              )}
+              <span className={`px-3 py-1 rounded-full text-xs font-semibold ${statusBadgeClass}`}>
+                {sessionStatus}
+              </span>
             </div>
           </div>
 
@@ -165,36 +198,26 @@ export function CertificationResults() {
               <div ref={dropdownRef} className="relative w-80">
                 <button
                   onClick={() => setDropdownOpen((prev) => !prev)}
-                  className="w-full flex justify-between items-center border border-border rounded-lg px-4 py-2 bg-background shadow-sm text-sm font-medium hover:bg-background-muted transition"
+                  className="w-full flex justify-between items-center border border-border rounded-lg px-4 py-2 bg-background shadow-sm text-sm font-medium"
                 >
                   {renderSessionLabel(selectedSession?.fixSessionId)}
-                  <ChevronDown
-                    size={18}
-                    className={`transition-transform duration-200 ${dropdownOpen ? "rotate-180" : ""
-                      }`}
-                  />
+                  <ChevronDown size={18} />
                 </button>
 
                 {dropdownOpen && (
                   <div className="absolute mt-2 w-full bg-background border border-border rounded-lg shadow-lg z-50 overflow-hidden">
-                    {sessions.map((s) => {
-                      const isSelected = s.simSessionId === selectedSessionId;
-                      return (
-                        <button
-                          key={s.simSessionId}
-                          onClick={() => {
-                            setSelectedSessionId(s.simSessionId);
-                            setDropdownOpen(false);
-                          }}
-                          className={`w-full text-left px-4 py-2 text-sm transition ${isSelected
-                              ? "bg-brand/10 text-brand font-semibold"
-                              : "hover:bg-background-muted"
-                            }`}
-                        >
-                          {renderSessionLabel(s.fixSessionId)}
-                        </button>
-                      );
-                    })}
+                    {sessions.map((s) => (
+                      <button
+                        key={s.simSessionId}
+                        onClick={() => {
+                          setSelectedSessionId(s.simSessionId);
+                          setDropdownOpen(false);
+                        }}
+                        className="w-full text-left px-4 py-2 text-sm hover:bg-background-muted"
+                      >
+                        {renderSessionLabel(s.fixSessionId)}
+                      </button>
+                    ))}
                   </div>
                 )}
               </div>

@@ -78,9 +78,10 @@ export default function UploadFixLog({ onContinue, onBack }: Props) {
           h-44 border-2 border-dashed rounded-lg
           flex flex-col items-center justify-center text-center
           transition-colors cursor-pointer
-          ${isDragging
-            ? "bg-brand/10 border-brand"
-            : "bg-background-muted border-border hover:border-brand"
+          ${
+            isDragging
+              ? "bg-brand/10 border-brand"
+              : "bg-background-muted border-border hover:border-brand"
           }
         `}
         onDragOver={(e) => {
@@ -128,9 +129,19 @@ export default function UploadFixLog({ onContinue, onBack }: Props) {
       </div>
 
       <div>
-        <h3 className="text-sm font-semibold mb-3 text-text">
-          Or Select Existing Log
-        </h3>
+        <div className="flex items-center justify-between mb-3">
+          <h3 className="text-sm font-semibold text-text">
+            Or Select Existing Log
+          </h3>
+
+          <button
+            onClick={handleParseLog}
+            disabled={!selectedName}
+            className="px-3 py-1.5 text-xs font-medium rounded-md border border-border bg-background hover:border-brand hover:text-brand disabled:opacity-50 disabled:cursor-not-allowed transition"
+          >
+            Parse Log
+          </button>
+        </div>
 
         {loadingLogs ? (
           <p className="text-sm text-text-muted">Loading logs...</p>
@@ -153,22 +164,15 @@ export default function UploadFixLog({ onContinue, onBack }: Props) {
                       setSelectedFile(null);
                     }}
                     className={`cursor-pointer border-b border-border hover:bg-background-subtle ${
-                      selectedExistingLog?.uploadId ===
-                      log.uploadId
+                      selectedExistingLog?.uploadId === log.uploadId
                         ? "bg-brand/10"
                         : ""
                     }`}
                   >
+                    <td className="px-4 py-3">{log.fileName}</td>
+                    <td className="px-4 py-3">{log.uploadStatus}</td>
                     <td className="px-4 py-3">
-                      {log.fileName}
-                    </td>
-                    <td className="px-4 py-3">
-                      {log.uploadStatus}
-                    </td>
-                    <td className="px-4 py-3">
-                      {new Date(
-                        log.dateCreated
-                      ).toLocaleString()}
+                      {new Date(log.dateCreated).toLocaleString()}
                     </td>
                   </tr>
                 ))}
@@ -177,17 +181,6 @@ export default function UploadFixLog({ onContinue, onBack }: Props) {
           </div>
         )}
       </div>
-
-      {selectedName && (
-        <div className="flex justify-end">
-          <button
-            onClick={handleParseLog}
-            className="px-4 py-2 text-sm font-medium rounded-md bg-brand text-white hover:bg-brand-dark"
-          >
-            Parse Log
-          </button>
-        </div>
-      )}
 
       {parsedData.length > 0 && (
         <div>
@@ -200,32 +193,17 @@ export default function UploadFixLog({ onContinue, onBack }: Props) {
               <thead className="bg-background-muted text-xs text-text-muted border-b border-border">
                 <tr>
                   <th className="px-4 py-3 text-left w-16">Seq</th>
-                  <th className="px-4 py-3 text-left w-24">
-                    Msg Type
-                  </th>
-                  <th className="px-4 py-3 text-left">
-                    Description
-                  </th>
-                  <th className="px-4 py-3 text-right w-24">
-                    Errors
-                  </th>
+                  <th className="px-4 py-3 text-left w-24">Msg Type</th>
+                  <th className="px-4 py-3 text-left">Description</th>
+                  <th className="px-4 py-3 text-right w-24">Errors</th>
                 </tr>
               </thead>
               <tbody>
                 {parsedData.map((msg) => (
-                  <tr
-                    key={msg.seq}
-                    className="border-b border-border"
-                  >
-                    <td className="px-4 py-3">
-                      {msg.seq}
-                    </td>
-                    <td className="px-4 py-3">
-                      {msg.type}
-                    </td>
-                    <td className="px-4 py-3">
-                      {msg.description}
-                    </td>
+                  <tr key={msg.seq} className="border-b border-border">
+                    <td className="px-4 py-3">{msg.seq}</td>
+                    <td className="px-4 py-3">{msg.type}</td>
+                    <td className="px-4 py-3">{msg.description}</td>
                     <td
                       className={`px-4 py-3 text-right ${
                         msg.errors === "OK"

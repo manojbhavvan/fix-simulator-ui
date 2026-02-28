@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 import { API_BASE_URL } from "../../config/api";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
@@ -32,6 +33,8 @@ export function RecentCertifications() {
   const [loading, setLoading] = useState(false);
   const [page, setPage] = useState(1);
 
+  const navigate = useNavigate();
+
   useEffect(() => {
     fetchSimulations();
   }, []);
@@ -55,7 +58,6 @@ export function RecentCertifications() {
   const totalPages = Math.ceil(data.length / ITEMS_PER_PAGE);
   const startIndex = (page - 1) * ITEMS_PER_PAGE;
   const paginatedData = data.slice(startIndex, startIndex + ITEMS_PER_PAGE);
-  const emptyRows = ITEMS_PER_PAGE - paginatedData.length;
 
   return (
     <div className="flex flex-col">
@@ -63,11 +65,12 @@ export function RecentCertifications() {
         Recent Certifications
       </h2>
 
-      <div className="flex flex-col ">
+      <div className="flex flex-col">
         <div className="overflow-hidden rounded-lg border border-border bg-background shadow-sm">
           <table className="min-w-full text-sm">
             <thead className="bg-background-muted border-b border-border">
               <tr className="text-left text-xs font-normal text-text-muted tracking-wide">
+                <th className="px-4 py-3">Simulation ID</th>
                 <th className="px-4 py-3">File</th>
                 <th className="px-4 py-3">Version</th>
                 <th className="px-4 py-3">Created Date</th>
@@ -78,7 +81,7 @@ export function RecentCertifications() {
             <tbody>
               {loading && (
                 <tr>
-                  <td colSpan={4} className="text-center py-6 text-text-muted">
+                  <td colSpan={5} className="text-center py-6 text-text-muted">
                     Loading...
                   </td>
                 </tr>
@@ -86,7 +89,7 @@ export function RecentCertifications() {
 
               {!loading && paginatedData.length === 0 && (
                 <tr>
-                  <td colSpan={4} className="text-center py-6 text-text-muted">
+                  <td colSpan={5} className="text-center py-6 text-text-muted">
                     No data available
                   </td>
                 </tr>
@@ -94,7 +97,13 @@ export function RecentCertifications() {
 
               {!loading &&
                 paginatedData.map((item) => (
-                  <Row key={item.simId} item={item} />
+                  <Row
+                    key={item.simId}
+                    item={item}
+                    onClick={() =>
+                      navigate(`/certifications/results/${item.simId}`)
+                    }
+                  />
                 ))}
             </tbody>
           </table>
@@ -129,7 +138,13 @@ export function RecentCertifications() {
   );
 }
 
-function Row({ item }: { item: Simulation }) {
+function Row({
+  item,
+  onClick,
+}: {
+  item: Simulation;
+  onClick: () => void;
+}) {
   const fileName = item.uploadLog?.fileName ?? "-";
 
   const formatVersion = (version: FixVersion) => {
@@ -147,7 +162,13 @@ function Row({ item }: { item: Simulation }) {
     });
 
   return (
-    <tr className="border-b border-border hover:bg-background-subtle transition-colors text-xs">
+    <tr
+      onClick={onClick}
+      className="border-b border-border hover:bg-background-subtle transition-colors text-xs cursor-pointer"
+    >
+      <td className="px-4 py-3 font-semibold text-brand">
+        {item.simId}
+      </td>
       <td className="px-4 py-3 font-medium text-text">
         {fileName}
       </td>
