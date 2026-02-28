@@ -22,6 +22,7 @@ type SimulationMessage = {
   sessionMsgId: number;
   seqNum: number;
   msgType: string;
+  msgName?: string | null;
   isValid: boolean;
   rawFixMsg: any;
   validationErrors: ValidationError[];
@@ -32,21 +33,6 @@ type SimulationSession = {
   fixSessionId: string;
   status?: string;
   messages: SimulationMessage[];
-};
-
-const getMsgLabel = (type: string) => {
-  const map: Record<string, string> = {
-    "0": "Heartbeat",
-    "1": "Test Request",
-    "2": "Resend Request",
-    "3": "Reject",
-    "4": "Sequence Reset",
-    "5": "Logout",
-    "A": "Logon",
-    "D": "New Order Single",
-    "8": "Execution Report",
-  };
-  return map[type] || `Unknown (${type})`;
 };
 
 const renderSessionLabel = (value?: string) => {
@@ -103,7 +89,7 @@ export function CertificationResults() {
       id: msg.sessionMsgId,
       seqNum: msg.seqNum,
       msgType: msg.msgType,
-      type: getMsgLabel(msg.msgType),
+      type: msg.msgName,
       sender: msg.rawFixMsg?.["49"],
       target: msg.rawFixMsg?.["56"],
       direction: `${msg.rawFixMsg?.["49"]} → ${msg.rawFixMsg?.["56"]}`,
