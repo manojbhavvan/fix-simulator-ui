@@ -133,7 +133,7 @@ export default function SequenceFlow({
               resetHeartbeatTimer();
             }
 
-            if (data.messageType === "5") {
+            if (data.messageType === "8") {
               setTimeout(() => {
                 onCompleted();
               }, 1500);
