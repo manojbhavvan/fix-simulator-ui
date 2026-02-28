@@ -58,13 +58,13 @@ export function RecentCertifications() {
   const emptyRows = ITEMS_PER_PAGE - paginatedData.length;
 
   return (
-    <div className="flex flex-col h-full">
+    <div className="flex flex-col">
       <h2 className="text-lg font-semibold tracking-wide text-brand pb-4">
         Recent Certifications
       </h2>
 
-      <div className="flex flex-col flex-1">
-        <div className="flex-1 overflow-hidden rounded-lg border border-border bg-background shadow-sm">
+      <div className="flex flex-col ">
+        <div className="overflow-hidden rounded-lg border border-border bg-background shadow-sm">
           <table className="min-w-full text-sm">
             <thead className="bg-background-muted border-b border-border">
               <tr className="text-left text-xs font-normal text-text-muted tracking-wide">

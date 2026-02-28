@@ -19,9 +19,9 @@ export default function Dashboard() {
         <div className="xl:col-span-5 flex">
           <div className="flex flex-col flex-1 border border-border rounded-lg bg-background shadow-sm h-[600px]">
 
-            <div className="border-b border-border px-6 py-5">
+            {/* <div className="border-b border-border px-6 py-5">
               <ActionPanel />
-            </div>
+            </div> */}
 
             <div className="flex-1 overflow-auto px-6 py-6">
               <RecentCertifications />

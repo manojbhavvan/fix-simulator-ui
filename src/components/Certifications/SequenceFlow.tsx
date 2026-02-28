@@ -1,6 +1,7 @@
 import { useEffect, useState, useRef } from "react";
 import SockJS from "sockjs-client";
 import { Client, IMessage } from "@stomp/stompjs";
+import { ArrowRight } from "lucide-react";
 
 type FixEvent = {
   id: number;
@@ -226,13 +227,19 @@ export default function SequenceFlow({
         </div>
       </div>
 
-      <div className="flex flex-wrap gap-4 mt-6">
-        {events.map((e) => (
-          <div
-            key={e.id}
-            className="px-4 py-2 border rounded-md text-sm"
-          >
-            {e.label} ({e.type})
+      <div className="flex flex-wrap items-center gap-2 mt-6">
+        {events.map((e, index) => (
+          <div key={e.id} className="flex items-center">
+            <div className="px-4 py-2 border border-border rounded-md text-sm bg-background">
+              {e.label} ({e.type})
+            </div>
+
+            {index !== events.length - 1 && (
+              <ArrowRight
+                size={16}
+                className="mx-2 text-text-muted shrink-0"
+              />
+            )}
           </div>
         ))}
 

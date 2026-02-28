@@ -100,7 +100,7 @@ export function Navbar() {
 
           <NavItem
             ref={(el) => (tabsRef.current.fileUpload = el)}
-            label="Certification"
+            label="Run Certification"
             active={active === "fileUpload"}
             onClick={() => navigate("/certifications")}
           />
