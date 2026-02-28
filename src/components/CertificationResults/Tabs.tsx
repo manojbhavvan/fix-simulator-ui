@@ -1,4 +1,4 @@
-type TabKey = "details" | "sequence" | "raw" | "ai";
+type TabKey = "details" | "raw" | "sequence" | "heartbeat" | "ai";
 
 export function Tabs({
   active,
@@ -9,14 +9,15 @@ export function Tabs({
 }) {
   const tabs: { key: TabKey; label: string }[] = [
     { key: "details", label: "Message Details" },
-    { key: "sequence", label: "Sequence Flow" },
     { key: "raw", label: "Raw FIX" },
+    { key: "sequence", label: "Sequence Flow" },
+    { key: "heartbeat", label: "Heartbeat" },
     { key: "ai", label: "AI Analysis" },
   ];
 
   return (
     <div className="border-b border-border">
-      <div className="flex gap-6">
+      <div className="flex gap-6 overflow-x-auto scrollbar-hide">
         {tabs.map((t) => {
           const isActive = active === t.key;
 
@@ -25,11 +26,12 @@ export function Tabs({
               key={t.key}
               onClick={() => onChange(t.key)}
               className={`
-                relative pb-3 pt-2 text-sm font-medium
+                relative pb-3 pt-2 text-sm font-medium whitespace-nowrap
                 transition-colors
-                ${isActive
-                  ? "text-brand"
-                  : "text-text-muted hover:text-text"
+                ${
+                  isActive
+                    ? "text-brand"
+                    : "text-text-muted hover:text-text"
                 }
               `}
             >

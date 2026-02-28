@@ -1,5 +1,7 @@
-import { useState } from "react";
-import { certificationRunMock } from "@/mocks/certificationRun";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { useParams } from "react-router-dom";
+import axios from "axios";
+import { ChevronDown, ArrowRight } from "lucide-react";
 import { Tabs } from "@/components/CertificationResults/Tabs";
 import { MessageList } from "@/components/CertificationResults/MessageList";
 import { MessageAnalysis } from "@/components/CertificationResults/MessageAnalysis";
@@ -7,19 +9,132 @@ import { SequenceFlowView } from "@/components/CertificationResults/SequenceFlow
 import { BackButton } from "@/components/utils/BackButton";
 import { MessageDetails } from "@/components/CertificationResults/MessageDetails";
 
-type TabKey = "details" | "sequence" | "raw" | "ai";
+type TabKey = "details" | "raw" | "sequence" | "heartbeat" | "ai";
+
+type ValidationError = {
+  errorId: number;
+  errorCode: string;
+  tagNumber: number;
+  description: string;
+};
+
+type SimulationMessage = {
+  sessionMsgId: number;
+  seqNum: number;
+  msgType: string;
+  isValid: boolean;
+  rawFixMsg: any;
+  validationErrors: ValidationError[];
+};
+
+type SimulationSession = {
+  simSessionId: number;
+  fixSessionId: string;
+  status: string;
+  messages: SimulationMessage[];
+};
+
+const getMsgLabel = (type: string) => {
+  const map: Record<string, string> = {
+    "0": "Heartbeat",
+    "1": "Test Request",
+    "2": "Resend Request",
+    "3": "Reject",
+    "4": "Sequence Reset",
+    "5": "Logout",
+    "A": "Logon",
+    "D": "New Order Single",
+    "8": "Execution Report",
+  };
+  return map[type] || `Unknown (${type})`;
+};
+
+const renderSessionLabel = (value?: string) => {
+  if (!value) return null;
+  const [left, right] = value.split("->");
+  if (!right) return <span>{value}</span>;
+  return (
+    <span className="flex items-center gap-2">
+      <span>{left}</span>
+      <ArrowRight size={16} className="text-text-muted" />
+      <span>{right}</span>
+    </span>
+  );
+};
 
 export function CertificationResults() {
-  const data = certificationRunMock;
+  const { id } = useParams();
 
+  const [sessions, setSessions] = useState<SimulationSession[]>([]);
+  const [selectedSessionId, setSelectedSessionId] = useState<number | null>(null);
+  const [selectedMessage, setSelectedMessage] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<TabKey>("details");
-  const [selectedMessage, setSelectedMessage] = useState(
-    data.messages.find((m) => m.status === "FAIL") ||
-      data.messages[0]
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+
+  const dropdownRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setDropdownOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  useEffect(() => {
+    if (!id) return;
+    setLoading(true);
+    axios
+      .get(`/api/rest/simulation/session/simulation/${id}`)
+      .then((res) => {
+        const data = Array.isArray(res.data) ? res.data : [];
+        setSessions(data);
+        if (data.length > 0) {
+          setSelectedSessionId(data[0].simSessionId);
+        }
+      })
+      .finally(() => setLoading(false));
+  }, [id]);
+
+  const selectedSession = useMemo(
+    () => sessions.find((s) => s.simSessionId === selectedSessionId),
+    [sessions, selectedSessionId]
   );
 
+  const sessionMessages = useMemo(() => {
+    if (!selectedSession?.messages) return [];
+    return selectedSession.messages.map((msg) => ({
+      id: msg.sessionMsgId,
+      seqNum: msg.seqNum,
+      msgType: msg.msgType,
+      type: getMsgLabel(msg.msgType),
+      sender: msg.rawFixMsg?.["49"],
+      target: msg.rawFixMsg?.["56"],
+      direction: `${msg.rawFixMsg?.["49"]} → ${msg.rawFixMsg?.["56"]}`,
+      status: msg.isValid ? "PASS" : "FAIL",
+      rawFixMsg: msg.rawFixMsg,
+      validationErrors: msg.validationErrors,
+      sessionId: selectedSession.fixSessionId,
+    }));
+  }, [selectedSession]);
+
+  useEffect(() => {
+    setSelectedMessage(sessionMessages[0] ?? null);
+  }, [sessionMessages]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center text-text-muted">
+        Loading results...
+      </div>
+    );
+  }
+
   return (
-    <div className="min-h-screen bg-background px-6 py-8">
+    <div className="bg-background px-6 py-8">
       <div className="max-w-7xl mx-auto h-[calc(100vh-140px)] flex flex-col">
         <div className="border border-border rounded-lg bg-background shadow-sm flex flex-col overflow-hidden h-full">
           <div className="px-6 py-5 border-b border-border">
@@ -30,22 +145,69 @@ export function CertificationResults() {
                 Certification Results
               </span>
               <span className="text-text-muted">
-                {data.logId}
+                Simulation ID: {id}
               </span>
+              {selectedSession && (
+                <span
+                  className={`px-3 py-1 rounded-full text-xs font-semibold ${selectedSession.status === "ACTIVE"
+                      ? "bg-green-100 text-green-700"
+                      : "bg-gray-200 text-gray-600"
+                    }`}
+                >
+                  {selectedSession.status}
+                </span>
+              )}
             </div>
           </div>
 
           <div className="flex flex-col flex-1 min-h-0">
+            <div className="px-6 pt-4">
+              <div ref={dropdownRef} className="relative w-80">
+                <button
+                  onClick={() => setDropdownOpen((prev) => !prev)}
+                  className="w-full flex justify-between items-center border border-border rounded-lg px-4 py-2 bg-background shadow-sm text-sm font-medium hover:bg-background-muted transition"
+                >
+                  {renderSessionLabel(selectedSession?.fixSessionId)}
+                  <ChevronDown
+                    size={18}
+                    className={`transition-transform duration-200 ${dropdownOpen ? "rotate-180" : ""
+                      }`}
+                  />
+                </button>
+
+                {dropdownOpen && (
+                  <div className="absolute mt-2 w-full bg-background border border-border rounded-lg shadow-lg z-50 overflow-hidden">
+                    {sessions.map((s) => {
+                      const isSelected = s.simSessionId === selectedSessionId;
+                      return (
+                        <button
+                          key={s.simSessionId}
+                          onClick={() => {
+                            setSelectedSessionId(s.simSessionId);
+                            setDropdownOpen(false);
+                          }}
+                          className={`w-full text-left px-4 py-2 text-sm transition ${isSelected
+                              ? "bg-brand/10 text-brand font-semibold"
+                              : "hover:bg-background-muted"
+                            }`}
+                        >
+                          {renderSessionLabel(s.fixSessionId)}
+                        </button>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+            </div>
 
             <div className="px-6 pt-4">
               <Tabs active={activeTab} onChange={setActiveTab} />
             </div>
 
             <div className="grid grid-cols-12 gap-6 px-6 py-6 flex-1 min-h-0">
-
               <div className="col-span-3 min-h-0">
                 <MessageList
-                  messages={data.messages}
+                  messages={sessionMessages}
                   selected={selectedMessage}
                   onSelect={setSelectedMessage}
                 />
@@ -53,32 +215,26 @@ export function CertificationResults() {
 
               <div className="col-span-9 min-h-0">
                 <div className="border border-border rounded-lg bg-background h-full flex flex-col shadow-sm">
-
                   <div className="flex-1 min-h-0 overflow-auto p-6">
-
                     {activeTab === "details" && (
                       <MessageDetails message={selectedMessage} />
                     )}
-
-                    {activeTab === "sequence" && (
-                      <SequenceFlowView flow={data.sequenceFlow} />
-                    )}
-
                     {activeTab === "raw" && (
-                      <div className="border border-border rounded-md bg-background-muted">
-                        <div className="px-4 py-2 border-b border-border text-sm font-medium text-brand">
-                          Raw FIX Message
-                        </div>
-                        <pre className="px-4 py-4 text-xs font-mono text-text overflow-x-auto">
-                          {`8=FIX.4.2|9=176|35=D|49=CLIENT1|56=HUB1|55=AAPL|54=1|38=100|40=2|10=128`}
-                        </pre>
+                      <pre className="text-xs font-mono">
+                        {JSON.stringify(selectedMessage?.rawFixMsg, null, 2)}
+                      </pre>
+                    )}
+                    {activeTab === "sequence" && (
+                      <SequenceFlowView session={selectedSession} />
+                    )}
+                    {activeTab === "heartbeat" && (
+                      <div className="text-sm text-text-muted">
+                        Heartbeat analysis coming soon...
                       </div>
                     )}
-
                     {activeTab === "ai" && (
                       <MessageAnalysis message={selectedMessage} />
                     )}
-
                   </div>
                 </div>
               </div>
