@@ -33,7 +33,12 @@ type SimulationMessage = {
 type SimulationSession = {
   simSessionId: number;
   fixSessionId: string;
-  status?: string;
+  currentStatus?: {
+    simId: number;
+    status: string;
+    message: string;
+    timestamp: string;
+  };
   messages: SimulationMessage[];
 };
 
@@ -61,7 +66,6 @@ export function CertificationResults() {
   const [dropdownOpen, setDropdownOpen] = useState(false);
 
   const [lastHeartbeatTime, setLastHeartbeatTime] = useState<Date | null>(null);
-  const [sessionStatus, setSessionStatus] = useState<"ACTIVE" | "INACTIVE">("INACTIVE");
   const [isLive, setIsLive] = useState(false);
 
   const healthClientRef = useRef<Client | null>(null);
@@ -158,10 +162,6 @@ export function CertificationResults() {
   }, [lastHeartbeatTime]);
 
   useEffect(() => {
-    setSessionStatus(isLive ? "ACTIVE" : "INACTIVE");
-  }, [isLive]);
-
-  useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (
         dropdownRef.current &&
@@ -183,10 +183,16 @@ export function CertificationResults() {
     );
   }
 
+  const backendStatus = selectedSession?.currentStatus?.status ?? "INACTIVE";
+
   const statusBadgeClass =
-    sessionStatus === "ACTIVE"
+    backendStatus === "ACTIVE"
       ? "bg-green-100 text-green-700"
-      : "bg-red-100 text-red-600";
+      : backendStatus === "IN_PROGRESS"
+        ? "bg-indigo-100 text-indigo-700"
+        : backendStatus === "COMPLETED"
+          ? "bg-blue-100 text-blue-700"
+          : "bg-red-100 text-red-600";
 
   return (
     <div className="bg-background px-6 py-8">
@@ -202,8 +208,10 @@ export function CertificationResults() {
               <span className="text-text-muted">
                 Simulation ID: {id}
               </span>
-              <span className={`px-3 py-1 rounded-full text-xs font-semibold ${statusBadgeClass}`}>
-                {sessionStatus}
+              <span
+                className={`px-3 py-1 rounded-full text-xs font-semibold ${statusBadgeClass}`}
+              >
+                {backendStatus}
               </span>
             </div>
           </div>
@@ -280,8 +288,8 @@ export function CertificationResults() {
                               />
                               <span
                                 className={`text-sm font-medium ${isLive
-                                    ? "text-green-600"
-                                    : "text-red-600"
+                                  ? "text-green-600"
+                                  : "text-red-600"
                                   }`}
                               >
                                 {isLive ? "Live" : "Disconnected"}
