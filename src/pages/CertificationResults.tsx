@@ -33,11 +33,13 @@ type SimulationMessage = {
 type SimulationSession = {
   simSessionId: number;
   fixSessionId: string;
-  currentStatus?: {
-    simId: number;
-    status: string;
-    message: string;
-    timestamp: string;
+  simulationDetail?: {
+    currentStatus?: {
+      simId: number;
+      status: string;
+      message: string;
+      timestamp: string;
+    };
   };
   messages: SimulationMessage[];
 };
@@ -183,7 +185,7 @@ export function CertificationResults() {
     );
   }
 
-  const backendStatus = selectedSession?.currentStatus?.status ?? "INACTIVE";
+  const backendStatus = selectedSession?.simulationDetail?.currentStatus?.status;
 
   const statusBadgeClass = "bg-blue-100 text-blue-700";
 
