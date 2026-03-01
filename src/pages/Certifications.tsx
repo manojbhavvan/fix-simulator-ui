@@ -19,45 +19,45 @@ export function Certifications() {
     entry === "run" ? "run" : "upload"
   );
 
-  const [uploadedFileName, setUploadedFileName] = useState<
-    string | undefined
-  >(undefined);
+  const [simulationId, setSimulationId] = useState<string | null>(null);
 
   return (
-    <div className="p-6 space-y-6">
-      <CertificationStepper step={step} />
+    <div className="bg-background px-6 py-8">
+      <div className="max-w-6xl mx-auto space-y-10">
+        <CertificationStepper step={step} />
 
-      {step === "upload" && (
-        <div className="flex justify-center">
-          <UploadFixLog
-            onContinue={(fileName?: string) => {
-              setUploadedFileName(fileName);
-              setStep("run");
-            }}
-            onBack={() => navigate("/dashboard")}
+        {step === "upload" && (
+          <div className="flex justify-center">
+            <UploadFixLog
+              onContinue={() => {
+                setStep("run");
+              }}
+              onBack={() => navigate("/dashboard")}
+            />
+          </div>
+        )}
+
+        {step === "run" && (
+          <div className="flex justify-center">
+            <RunCertification
+              onRunSuccess={(simId: string) => {
+                setSimulationId(simId);
+                setStep("sequence");
+              }}
+              onBack={() => setStep("upload")}
+            />
+          </div>
+        )}
+
+        {step === "sequence" && simulationId && (
+          <SequenceFlow
+            simulationId={simulationId}
+            onCompleted={() =>
+              navigate(`/certifications/results/${simulationId}`)
+            }
           />
-        </div>
-      )}
-
-      {step === "run" && (
-        <div className="flex justify-center">
-          <RunCertification
-            onRun={() => setStep("sequence")}
-            onBack={() => setStep("upload")}
-            uploadedFileName={uploadedFileName}
-            allowUpload={!uploadedFileName}
-          />
-        </div>
-      )}
-
-      {step === "sequence" && (
-        <SequenceFlow
-          simulationId="SIM-20260123-000012"
-          onCompleted={() =>
-            navigate("/certifications/results/SIM-20260123-000012")
-          }
-        />
-      )}
+        )}
+      </div>
     </div>
   );
 }

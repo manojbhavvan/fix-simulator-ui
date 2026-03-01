@@ -12,12 +12,12 @@ export const NavItem = forwardRef<
         <div
             ref={ref}
             onClick={onClick}
-            className={`
-        relative py-3 cursor-pointer font-medium
-        ${active
-                    ? "text-primary"
-                    : "text-base-content/70 hover:text-base-content"}
-      `}
+            className={`relative py-3 cursor-pointer font-medium transition-colors duration-200
+                ${active
+                    ? "text-brand"
+                    : "text-text-muted hover:text-brand"
+                }
+            `}
         >
             {label}
         </div>

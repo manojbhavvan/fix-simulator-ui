@@ -1,52 +1,54 @@
-import { Play, Upload } from "lucide-react";
+import { Play, Upload, Settings } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 export function ActionPanel() {
   const navigate = useNavigate();
 
+  const baseButton =
+    "flex items-center justify-center gap-2 w-full h-10 px-4 rounded-md text-xs font-medium transition-all duration-200 border";
+
   return (
-    <div>
-      <div className="px-2 pb-3">
-        <div className="border-b border-color-gray pb-2">
-          <h2 className="text-lg font-semibold tracking-wide text-base-content/80">
-            Dashboard
+    <div className="bg-background rounded-lg border border-border shadow-sm">
+      <div className="px-6 py-5">
+        <div className="border-b border-border pb-3 mb-5">
+          <h2 className="text-lg font-semibold tracking-wide text-brand">
+            Quick Access
           </h2>
         </div>
 
-        <div className="mt-4 flex items-center gap-3">
+        <div className="grid grid-cols-3 gap-4">
           <button
-            className="btn btn-sm gap-2 px-3 bg-primary text-primary-content
-              border border-primary shadow-sm 
-              hover:bg-transparent hover:text-primary hover:shadow-md
-              transition-all duration-200
-            "
-            onClick={() =>
-              navigate("/certifications", {
-                state: { entry: "run" },
-              })
-            }
+            onClick={() => navigate("/simulator/config")}
+            className={`${baseButton}
+              border-brand text-brand
+              hover:bg-brand hover:text-white`}
           >
-            <Play className="w-4 h-4" />
-            Run Certification
+            <Settings className="w-4 h-4" />
+            Simulator Configuration
           </button>
 
           <button
-            className="
-              btn btn-sm gap-2 px-3
-              bg-base-200 text-base-content
-              border border-base-300
-              shadow-sm
-              hover:bg-transparent hover:text-primary hover:border-primary hover:shadow-md
-              transition-all duration-200
-            "
             onClick={() =>
-              navigate("/certifications", {
-                state: { entry: "upload" },
-              })
+              navigate("/certifications", { state: { entry: "upload" } })
             }
+            className={`${baseButton}
+              border-brand text-brand
+              hover:bg-brand hover:text-white`}
           >
             <Upload className="w-4 h-4" />
             Upload FIX Log
+          </button>
+
+          <button
+            onClick={() =>
+              navigate("/certifications", { state: { entry: "run" } })
+            }
+            className={`${baseButton}
+              border-brand text-brand
+              hover:bg-brand hover:text-white`}
+          >
+            <Play className="w-4 h-4" />
+            Run Certification
           </button>
         </div>
       </div>

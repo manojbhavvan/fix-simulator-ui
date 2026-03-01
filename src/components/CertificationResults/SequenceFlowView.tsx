@@ -1,65 +1,50 @@
-import { ArrowRight } from "lucide-react";
+type Props = {
+  session: any;
+};
 
-export function SequenceFlowView({ flow }: any) {
+const getMsgLabel = (type: string) => {
+  const map: Record<string, string> = {
+    "5": "Logout",
+    "A": "Logon",
+    "D": "New Order Single",
+    "8": "Execution Report",
+  };
+
+  return map[type] || `Unknown (${type})`;
+};
+
+export function SequenceFlowView({ session }: Props) {
+  if (!session?.messages)
+    return <div>No messages</div>;
+
   return (
-    <div className="space-y-6">
-      <div className="rounded">
-        <div className="px-4 py-2 font-semibold border-b border-base-300">
-          Sequence Flow
-        </div>
-
-        <div className="p-4">
-          <div className="flex flex-row gap-2 text-sm justify-center items-center">
-            {flow.nodes.map((node: string, idx: number) => (
-              <div key={idx} className="flex items-center gap-2">
-                <span className="px-3 py-1 border border-base-300 rounded bg-base-100 font-medium">
-                  {node}
-                </span>
-                {idx < flow.nodes.length - 1 && (
-                  <ArrowRight size={14} className="text-base-content/50" />
-                )}
-              </div>
-            ))}
-          </div>
-        </div>
+    <div className="border border-border rounded-lg bg-background shadow-sm">
+      <div className="px-5 py-3 border-b border-border">
+        <h3 className="text-sm font-semibold text-brand">
+          {session.fixSessionId}
+        </h3>
       </div>
 
-      {flow.issues?.length > 0 && (
-        <div className="border border-warning/40 bg-warning/10 rounded">
-          <div className="px-4 py-2 font-semibold text-warning border-b border-warning/30">
-            Issues Detected
-          </div>
+      <div className="p-6">
+        <div className="flex flex-wrap gap-3 items-center text-sm">
+          {session.messages.map((msg: any, idx: number) => (
+            <div
+              key={msg.sessionMsgId}
+              className="flex items-center gap-3"
+            >
+              <span className="px-4 py-1.5 rounded-md border border-border bg-background-muted font-medium">
+                {getMsgLabel(msg.msgType)}
+              </span>
 
-          <table className="w-full text-sm">
-            <tbody className="divide-y divide-warning/20">
-              {flow.issues.map((issue: any, idx: number) => (
-                <tr key={idx}>
-                  <td className="px-4 py-3 font-medium text-warning whitespace-nowrap">
-                    {issue.type}
-                  </td>
-                  <td className="px-4 py-3 text-base-content/80">
-                    {issue.description}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+              {idx < session.messages.length - 1 && (
+                <span className="text-text-muted">
+                  →
+                </span>
+              )}
+            </div>
+          ))}
         </div>
-      )}
-
-      {flow.insights?.length > 0 && (
-        <div className="border border-info/40 bg-info/5 rounded">
-          <div className="px-4 py-2 font-semibold text-info border-b border-info/30">
-            AI Insights
-          </div>
-
-          <ul className="list-disc ml-5 px-4 py-3 text-sm space-y-1">
-            {flow.insights.map((insight: string, idx: number) => (
-              <li key={idx}>{insight}</li>
-            ))}
-          </ul>
-        </div>
-      )}
+      </div>
     </div>
   );
 }

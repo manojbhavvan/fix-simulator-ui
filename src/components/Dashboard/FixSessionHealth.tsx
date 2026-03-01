@@ -1,15 +1,17 @@
-
 import { FixSessionSummary } from "./FixSessionSummary";
 import { FixSessionList } from "./FixSessionList";
+
 export function FixSessionHealth() {
-    return (
-        <div className="card bg-base-100 border border-base-300">
-            <div className="card-body p-5 ">
-                <div className="border-b border-base-300 pb-4">
-                    <FixSessionSummary />
-                </div>
-                <FixSessionList />
-            </div>
-        </div>
-    );
+  return (
+    <div className="h-full flex flex-col">
+      <div className="p-6 border-b border-border">
+        <FixSessionSummary />
+      </div>
+
+      <div className="flex-1 overflow-y-auto p-6">
+        <FixSessionList />
+      </div>
+
+    </div>
+  );
 }

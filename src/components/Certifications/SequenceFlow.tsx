@@ -1,116 +1,268 @@
-import { useEffect, useState } from "react";
-import { Loader2 } from "lucide-react";
+import { useEffect, useState, useRef } from "react";
+import SockJS from "sockjs-client";
+import { Client, IMessage } from "@stomp/stompjs";
+import { ArrowRight } from "lucide-react";
 
 type FixEvent = {
-  seq: number;
+  id: number;
   type: string;
   label: string;
-  status?: "ok" | "missing";
+  raw: string;
+};
+
+type FixLogStreamDTO = {
+  simId: string;
+  sessionId: string;
+  messageType: string;
+  message: string;
+};
+
+type StreamStatus = "active" | "inactive";
+
+type SequenceFlowProps = {
+  simulationId: string;
+  onCompleted: () => void;
 };
 
 export default function SequenceFlow({
   simulationId,
   onCompleted,
-}: {
-  simulationId: string;
-  onCompleted: () => void;
-}) {
+}: SequenceFlowProps) {
   const [events, setEvents] = useState<FixEvent[]>([]);
-  const [showIssues, setShowIssues] = useState(false);
+  const [issues, setIssues] = useState<string[]>([]);
+  const [streamStatus, setStreamStatus] =
+    useState<StreamStatus>("inactive");
+  const [countdown, setCountdown] = useState<number>(60);
+
+  const heartbeatTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const inactivityTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const countdownInterval = useRef<ReturnType<typeof setInterval> | null>(null);
+  const clientRef = useRef<Client | null>(null);
+
+  const getLabel = (type: string): string => {
+    switch (type) {
+      case "A":
+        return "Logon";
+      case "0":
+        return "Heartbeat";
+      case "D":
+        return "New Order";
+      case "5":
+        return "Logout";
+      default:
+        return `Message ${type}`;
+    }
+  };
+
+  const resetInactivityTimer = () => {
+    if (inactivityTimer.current)
+      clearTimeout(inactivityTimer.current);
+
+    if (countdownInterval.current)
+      clearInterval(countdownInterval.current);
+
+    setCountdown(60);
+
+    countdownInterval.current = setInterval(() => {
+      setCountdown((prev) => {
+        if (prev <= 1) {
+          clearInterval(countdownInterval.current!);
+          setStreamStatus("inactive");
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+
+    inactivityTimer.current = setTimeout(() => {
+      setStreamStatus("inactive");
+    }, 60000);
+  };
+
+  const resetHeartbeatTimer = () => {
+    if (heartbeatTimer.current)
+      clearTimeout(heartbeatTimer.current);
+
+    heartbeatTimer.current = setTimeout(() => {
+      setIssues((prev) => [
+        ...prev,
+        "Heartbeat timeout detected",
+      ]);
+    }, 10000);
+  };
 
   useEffect(() => {
-    const t1 = setTimeout(() => {
-      setEvents([{ seq: 1, type: "A", label: "Logon", status: "ok" }]);
-    }, 900);
+    if (!simulationId) return;
 
-    const t2 = setTimeout(() => {
-      setEvents((prev) => [
+    setEvents([]);
+    setIssues([]);
+    setStreamStatus("inactive");
+
+    const socketUrl = "/ws";
+
+    const client = new Client({
+      webSocketFactory: () => new SockJS(socketUrl),
+      reconnectDelay: 5000,
+      heartbeatIncoming: 10000,
+      heartbeatOutgoing: 10000,
+    });
+
+    client.onConnect = () => {
+      console.log("STOMP Connected");
+
+      client.subscribe(
+        `/topic/logs/${simulationId}`,
+        (msg: IMessage) => {
+          try {
+            const data: FixLogStreamDTO =
+              JSON.parse(msg.body);
+
+            setStreamStatus("active");
+            resetInactivityTimer();
+
+            const newEvent: FixEvent = {
+              id: Date.now(),
+              type: data.messageType,
+              label: getLabel(data.messageType),
+              raw: data.message,
+            };
+
+            setEvents((prev) => [...prev, newEvent]);
+
+            if (data.messageType === "0") {
+              resetHeartbeatTimer();
+            }
+
+            if (data.messageType === "8") {
+              setTimeout(() => {
+                onCompleted();
+              }, 1500);
+            }
+          } catch (err) {
+            console.error("Invalid message:", err);
+            setIssues((prev) => [
+              ...prev,
+              "Invalid message received",
+            ]);
+          }
+        }
+      );
+    };
+
+    client.onStompError = (frame) => {
+      console.error("Broker error:", frame.headers["message"]);
+      setIssues((prev) => [
         ...prev,
-        { seq: 2, type: "0", label: "Heartbeat", status: "missing" },
+        "STOMP broker error occurred",
       ]);
-    }, 1800);
+    };
 
-    const t3 = setTimeout(() => {
-      setEvents((prev) => [
+    client.onWebSocketError = (event: Event) => {
+      console.error("WebSocket error:", event);
+      setIssues((prev) => [
         ...prev,
-        { seq: 3, type: "D", label: "New Order", status: "ok" },
+        "WebSocket error occurred",
       ]);
-    }, 2600);
+    };
 
-    const t4 = setTimeout(() => {
-      setShowIssues(true);
-    }, 3500);
+    client.onWebSocketClose = () => {
+      console.warn("WebSocket closed");
+      setStreamStatus("inactive");
+    };
 
-    const t5 = setTimeout(() => {
-      onCompleted();
-    }, 4400);
+    client.activate();
+    clientRef.current = client;
 
     return () => {
-      clearTimeout(t1);
-      clearTimeout(t2);
-      clearTimeout(t3);
-      clearTimeout(t4);
-      clearTimeout(t5);
+      client.deactivate();
+
+      if (heartbeatTimer.current)
+        clearTimeout(heartbeatTimer.current);
+
+      if (inactivityTimer.current)
+        clearTimeout(inactivityTimer.current);
+
+      if (countdownInterval.current)
+        clearInterval(countdownInterval.current);
     };
-  }, [onCompleted]);
+  }, [simulationId, onCompleted]);
+
+  const statusColor: Record<StreamStatus, string> = {
+    active: "bg-green-500",
+    inactive: "bg-gray-400",
+  };
 
   return (
-    <div className="card bg-base-100 shadow p-6 space-y-6 w-[900px] max-w-full mx-auto">
-      <div>
-        <h2 className="text-lg font-semibold">Sequence Flow</h2>
-        <p className="text-sm text-base-content/60">
-          Simulation: {simulationId}
-        </p>
+    <div className="bg-background border border-border rounded-lg shadow-sm p-8 space-y-8 w-[1000px] max-w-full mx-auto">
+      <div className="flex justify-between items-center">
+        <div>
+          <h2 className="text-xl font-semibold text-brand">
+            Sequence Flow
+          </h2>
+          <p className="text-sm text-text-muted">
+            Simulation: {simulationId}
+          </p>
+        </div>
+
+        <div className="flex items-center gap-2">
+          <span
+            className={`w-3 h-3 rounded-full ${statusColor[streamStatus]}`}
+          />
+          <div className="text-sm">
+            {streamStatus === "active" ? (
+              <>
+                <span className="text-green-600 font-medium">
+                  Active
+                </span>
+                <span className="ml-2 text-text-muted">
+                  (Inactive in {countdown}s)
+                </span>
+              </>
+            ) : (
+              <span className="text-gray-500 font-medium">
+                In-Active
+              </span>
+            )}
+          </div>
+        </div>
       </div>
 
-      {!showIssues && (
-        <div className="flex items-center gap-2 text-sm text-primary">
-          <Loader2 className="animate-spin" size={16} />
-          Processing FIX messages…
-        </div>
-      )}
-
-      <div className="flex items-center justify-center gap-4 mt-4">
-        {events.map((event, idx) => (
-          <div key={event.seq} className="flex items-center gap-4">
-            <div
-              className={`
-                px-4 py-2 rounded-md border text-sm font-medium
-                ${
-                  event.status === "missing"
-                    ? "border-error bg-error/10 text-error"
-                    : "border-base-300 bg-base-100"
-                }
-              `}
-            >
-              {event.label} {event.type}
+      <div className="flex flex-wrap items-center gap-2 mt-6">
+        {events.map((e, index) => (
+          <div key={e.id} className="flex items-center">
+            <div className="px-4 py-2 border border-border rounded-md text-sm bg-background">
+              {e.label} ({e.type})
             </div>
 
-            {idx < events.length - 1 && (
-              <span className="text-base-content/50 text-lg">→</span>
+            {index !== events.length - 1 && (
+              <ArrowRight
+                size={16}
+                className="mx-2 text-text-muted shrink-0"
+              />
             )}
           </div>
         ))}
 
-        {!showIssues && (
-          <div className="px-4 py-2 rounded-md border border-dashed border-base-300 text-sm text-base-content/50">
-            Processing…
+        {events.length === 0 && (
+          <div className="px-4 py-2 border border-dashed rounded-md text-sm text-text-muted">
+            Waiting for messages...
           </div>
         )}
       </div>
 
-      {showIssues && (
+      {issues.length > 0 && (
         <>
-          <div className="divider my-2" />
+          <div className="h-px bg-border" />
           <div>
             <h3 className="text-sm font-semibold mb-2">
-              Issues Detected:
+              Issues Detected
             </h3>
-
-            <ul className="space-y-1 text-sm">
-              <li className="text-error">• Missing Heartbeat</li>
-              <li className="text-warning">• Seq Gap Detected</li>
-              <li className="text-base-content/70">• No Logout</li>
+            <ul className="text-sm space-y-1">
+              {issues.map((issue, i) => (
+                <li key={i} className="text-red-600">
+                  • {issue}
+                </li>
+              ))}
             </ul>
           </div>
         </>

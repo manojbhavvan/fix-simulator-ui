@@ -1,5 +1,22 @@
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
+import axios from "axios";
 import { ArrowLeft } from "lucide-react";
+import { API_BASE_URL } from "../../config/api";
+
+type UploadLog = {
+  uploadId: number;
+  fileName: string;
+  filePath: string;
+  uploadStatus: string;
+  dateCreated: string;
+};
+
+type ParsedMessage = {
+  seq: number;
+  type: string;
+  description: string;
+  errors?: string;
+};
 
 type Props = {
   onContinue: (fileName?: string) => void;
@@ -8,22 +25,65 @@ type Props = {
 
 export default function UploadFixLog({ onContinue, onBack }: Props) {
   const fileInputRef = useRef<HTMLInputElement>(null);
+
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [uploadedLogs, setUploadedLogs] = useState<UploadLog[]>([]);
+  const [selectedExistingLog, setSelectedExistingLog] =
+    useState<UploadLog | null>(null);
+
+  const [parsedData, setParsedData] = useState<ParsedMessage[]>([]);
   const [isDragging, setIsDragging] = useState(false);
+  const [loadingLogs, setLoadingLogs] = useState(false);
+
+  useEffect(() => {
+    fetchUploadedLogs();
+  }, []);
+
+  const fetchUploadedLogs = async () => {
+    try {
+      setLoadingLogs(true);
+      const response = await axios.get<UploadLog[]>(
+        `${API_BASE_URL}/rest/upload/log/all`
+      );
+      setUploadedLogs(response.data || []);
+    } catch (err) {
+      console.error("Failed to fetch logs", err);
+    } finally {
+      setLoadingLogs(false);
+    }
+  };
+
+  const handleParseLog = () => {
+    const dummy: ParsedMessage[] = [
+      { seq: 1, type: "A", description: "Logon", errors: "OK" },
+      { seq: 2, type: "D", description: "New Order", errors: "2 Errors" },
+      { seq: 3, type: "8", description: "Execution Report" },
+      { seq: 4, type: "5", description: "Logout", errors: "OK" },
+    ];
+
+    setParsedData(dummy);
+  };
+
+  const selectedName =
+    selectedFile?.name || selectedExistingLog?.fileName;
 
   return (
-    <div className="card bg-base-100 shadow p-6 space-y-4 w-[720px] max-w-full">
-      <h2 className="text-lg font-semibold">Upload FIX Log</h2>
+    <div className="bg-background border border-border rounded-lg shadow-sm p-8 space-y-8 w-[900px] max-w-full mx-auto">
+      <h2 className="text-xl font-semibold text-brand">
+        Upload / Parse FIX Log
+      </h2>
 
       <div
-        className={`h-40 border-2 border-dashed rounded-lg 
+        className={`
+          h-44 border-2 border-dashed rounded-lg
           flex flex-col items-center justify-center text-center
           transition-colors cursor-pointer
-          ${isDragging
-            ? "bg-primary/10 border-primary"
-            : "bg-primary/5 border-primary/30 hover:bg-primary/10"
+          ${
+            isDragging
+              ? "bg-brand/10 border-brand"
+              : "bg-background-muted border-border hover:border-brand"
           }
-      `}
+        `}
         onDragOver={(e) => {
           e.preventDefault();
           setIsDragging(true);
@@ -32,24 +92,26 @@ export default function UploadFixLog({ onContinue, onBack }: Props) {
         onDrop={(e) => {
           e.preventDefault();
           setIsDragging(false);
-
           const file = e.dataTransfer.files?.[0];
           if (file) {
             setSelectedFile(file);
+            setSelectedExistingLog(null);
           }
         }}
         onClick={() => fileInputRef.current?.click()}
       >
-        <p className="text-sm font-medium text-base-content">
+        <p className="text-sm font-medium text-text">
           Drop your file here or{" "}
-          <span className="text-primary font-semibold underline">
+          <span className="text-brand font-semibold underline">
             browse
           </span>
         </p>
 
-        <p className="mt-1 text-xs text-base-content/60">
-          Max. file size: 20MB
-        </p>
+        {selectedFile && (
+          <p className="mt-3 text-sm text-brand font-medium">
+            Selected: {selectedFile.name}
+          </p>
+        )}
 
         <input
           ref={fileInputRef}
@@ -60,100 +122,120 @@ export default function UploadFixLog({ onContinue, onBack }: Props) {
             const file = e.target.files?.[0];
             if (file) {
               setSelectedFile(file);
+              setSelectedExistingLog(null);
             }
           }}
         />
       </div>
 
-      <div className="flex items-center gap-3">
-        <span className="text-sm text-base-content/70 whitespace-nowrap">
-          FIX Version
-        </span>
+      <div>
+        <div className="flex items-center justify-between mb-3">
+          <h3 className="text-sm font-semibold text-text">
+            Or Select Existing Log
+          </h3>
 
-        <select
-          className="select select-sm w-28 px-4 text-sm
-            border border-black focus:border-base-400
-            focus:outline-none"
-        >
-          <option>FIX 4.2</option>
-          <option>FIX 4.4</option>
-        </select>
-      </div>
-      <div className="border-b border-base-400"></div>
+          <button
+            onClick={handleParseLog}
+            disabled={!selectedName}
+            className="px-3 py-1.5 text-xs font-medium rounded-md border border-border bg-background hover:border-brand hover:text-brand disabled:opacity-50 disabled:cursor-not-allowed transition"
+          >
+            Parse Log
+          </button>
+        </div>
 
-      <div className="mt-6">
-        <div className="flex items-center justify-between mb-2">
-          <span className="text-base font-semibold text-base-content">
-            Parsed Messages
-          </span>
-          <div className="px-4 py-0.5 rounded text-sm font-semibold 
-            hover:bg-base-200 cursor-pointer
-            border border-black hover:border-base-300">
-            <button className="btn btn-xs btn-outline">
-              Parse Log
-            </button>
+        {loadingLogs ? (
+          <p className="text-sm text-text-muted">Loading logs...</p>
+        ) : (
+          <div className="border rounded-md border-border overflow-hidden">
+            <table className="min-w-full text-sm">
+              <thead className="bg-background-muted text-xs text-text-muted border-b border-border">
+                <tr>
+                  <th className="px-4 py-3 text-left">File Name</th>
+                  <th className="px-4 py-3 text-left">Status</th>
+                  <th className="px-4 py-3 text-left">Created</th>
+                </tr>
+              </thead>
+              <tbody>
+                {uploadedLogs.map((log) => (
+                  <tr
+                    key={log.uploadId}
+                    onClick={() => {
+                      setSelectedExistingLog(log);
+                      setSelectedFile(null);
+                    }}
+                    className={`cursor-pointer border-b border-border hover:bg-background-subtle ${
+                      selectedExistingLog?.uploadId === log.uploadId
+                        ? "bg-brand/10"
+                        : ""
+                    }`}
+                  >
+                    <td className="px-4 py-3">{log.fileName}</td>
+                    <td className="px-4 py-3">{log.uploadStatus}</td>
+                    <td className="px-4 py-3">
+                      {new Date(log.dateCreated).toLocaleString()}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
-
-        </div>
-
-        <div className="overflow-hidden rounded-md">
-          <table className="table table-sm border border-base-300 border-collapse">
-            <thead className="bg-base-200 text-xs text-base-content/70">
-              <tr>
-                <th className="border border-base-300 w-12">Seq</th>
-                <th className="border border-base-300 w-20">Msg Type</th>
-                <th className="border border-base-300">Description</th>
-                <th className="border border-base-300 w-24 text-right">Errors</th>
-              </tr>
-            </thead>
-
-            <tbody className="text-sm">
-              <tr>
-                <td className="border border-base-300">1</td>
-                <td className="border border-base-300">A</td>
-                <td className="border border-base-300">Logon</td>
-                <td className="border border-base-300 text-right text-success">OK</td>
-              </tr>
-
-              <tr>
-                <td className="border border-base-300">2</td>
-                <td className="border border-base-300">D</td>
-                <td className="border border-base-300">New Order</td>
-                <td className="border border-base-300 text-right text-error">
-                  2 Errors
-                </td>
-              </tr>
-
-              <tr>
-                <td className="border border-base-300">3</td>
-                <td className="border border-base-300">8</td>
-                <td className="border border-base-300">Execution Report</td>
-                <td className="border border-base-300 text-right text-base-content/60">
-                  -
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
+        )}
       </div>
 
-      <div className="flex justify-between items-center pt-4">
+      {parsedData.length > 0 && (
+        <div>
+          <h3 className="text-base font-semibold mb-4">
+            Parsed Messages
+          </h3>
+
+          <div className="overflow-hidden rounded-md border border-border">
+            <table className="min-w-full text-sm">
+              <thead className="bg-background-muted text-xs text-text-muted border-b border-border">
+                <tr>
+                  <th className="px-4 py-3 text-left w-16">Seq</th>
+                  <th className="px-4 py-3 text-left w-24">Msg Type</th>
+                  <th className="px-4 py-3 text-left">Description</th>
+                  <th className="px-4 py-3 text-right w-24">Errors</th>
+                </tr>
+              </thead>
+              <tbody>
+                {parsedData.map((msg) => (
+                  <tr key={msg.seq} className="border-b border-border">
+                    <td className="px-4 py-3">{msg.seq}</td>
+                    <td className="px-4 py-3">{msg.type}</td>
+                    <td className="px-4 py-3">{msg.description}</td>
+                    <td
+                      className={`px-4 py-3 text-right ${
+                        msg.errors === "OK"
+                          ? "text-green-600"
+                          : msg.errors
+                          ? "text-red-600"
+                          : "text-text-muted"
+                      }`}
+                    >
+                      {msg.errors ?? "-"}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+
+      <div className="flex justify-between items-center pt-6">
         <button
           onClick={onBack}
-          className="px-3 btn btn-sm bg-primary text-primary-content border border-primary
-            hover:bg-transparent hover:text-primary transition-colors
-            flex items-center justify-center gap-2 leading-none"
+          className="flex items-center gap-2 px-4 py-2 text-sm font-medium border border-border rounded-md bg-background hover:border-brand hover:text-brand"
         >
-          <ArrowLeft className="mt-[1px]" size={16} />
-          <span className="leading-none">Back</span>
+          <ArrowLeft size={16} />
+          Back
         </button>
 
-
         <button
-          onClick={() => onContinue(selectedFile?.name)}
-          className="px-3 btn btn-sm bg-primary text-primary-content
-            border border-primary hover:bg-transparent hover:text-primary
-            transition-colors"
+          onClick={() => onContinue(selectedName)}
+          disabled={!selectedName}
+          className="px-5 py-2 text-sm font-semibold rounded-md bg-brand text-white disabled:opacity-50"
         >
           Continue to Certification
         </button>

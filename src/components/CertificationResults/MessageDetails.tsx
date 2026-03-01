@@ -1,72 +1,75 @@
 export function MessageDetails({ message }: any) {
-    const d = message.details;
-
-    if (!d) {
-        return (
-            <div className="text-sm text-success">
-                No message-level issues detected.
-            </div>
-        );
-    }
-
+  if (!message) {
     return (
-        <div className="h-full min-h-0 overflow-auto">
-            <div className="space-y-4">
-                <h3 className="font-semibold text-base">Message Details</h3>
-
-                <div className="overflow-hidden border border-base-300 rounded">
-                    <table className="w-full text-sm">
-                        <tbody className="divide-y divide-base-300">
-                            <tr>
-                                <td className="px-4 py-2 font-medium text-base-content/70 font-semibold w-48">
-                                    FIX Version
-                                </td>
-                                <td className="px-4 py-2 font-medium">
-                                    {d.fixVersion}
-                                </td>
-                            </tr>
-
-                            <tr>
-                                <td className="px-4 py-2 font-medium text-base-content/70 font-semibold">
-                                    Message Type
-                                </td>
-                                <td className="px-4 py-2 font-medium">
-                                    {d.msgType}
-                                </td>
-                            </tr>
-
-                            <tr>
-                                <td className="px-4 py-2 font-medium text-base-content/70 font-semibold">
-                                    Sequence Number
-                                </td>
-                                <td className="px-4 py-2 font-medium">
-                                    {d.sequenceNumber}
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-
-                {d.missingTags?.length > 0 && (
-                    <div>
-                        <div className="font-medium text-error mb-2">
-                            Missing Required Tags
-                        </div>
-
-                        <div className="flex flex-wrap gap-2">
-                            {d.missingTags.map((tag: string) => (
-                                <span
-                                    key={tag}
-                                    className="badge badge-error badge-outline"
-                                >
-                                    Tag {tag}
-                                </span>
-                            ))}
-                        </div>
-                    </div>
-                )}
-            </div>
-        </div>
-
+      <div className="text-text-muted text-sm">
+        No message selected.
+      </div>
     );
+  }
+
+  return (
+    <div className="space-y-6">
+      <h3 className="text-base font-semibold text-brand">
+        Message Details
+      </h3>
+
+      <div className="border border-border rounded-lg overflow-hidden">
+        <table className="w-full text-sm">
+          <tbody className="divide-y divide-border">
+            <tr>
+              <td className="px-5 py-3 font-medium text-text-muted">
+                Session ID
+              </td>
+              <td className="px-5 py-3">{message.sessionId}</td>
+            </tr>
+
+            <tr>
+              <td className="px-5 py-3 font-medium text-text-muted">
+                Sequence Number
+              </td>
+              <td className="px-5 py-3">{message.seqNum}</td>
+            </tr>
+
+            <tr>
+              <td className="px-5 py-3 font-medium text-text-muted">
+                Message Type
+              </td>
+              <td className="px-5 py-3">{message.type}</td>
+            </tr>
+
+            <tr>
+              <td className="px-5 py-3 font-medium text-text-muted">
+                Status
+              </td>
+              <td className="px-5 py-3">{message.status}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      {message.validationErrors?.length > 0 && (
+        <div>
+          <h4 className="text-sm font-semibold text-red-600 mb-3">
+            Validation Errors
+          </h4>
+
+          <div className="space-y-2">
+            {message.validationErrors.map((err: any) => (
+              <div
+                key={err.errorId}
+                className="border border-red-200 bg-red-50 rounded-md p-3 text-sm"
+              >
+                <div className="font-medium text-red-600">
+                  {err.errorCode}
+                </div>
+                <div className="text-text-muted">
+                  Tag {err.tagNumber} — {err.description}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  );
 }

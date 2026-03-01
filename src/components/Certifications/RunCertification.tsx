@@ -1,176 +1,248 @@
-import { useState } from "react";
-import { ArrowLeft, Check } from "lucide-react";
+import { useEffect, useState } from "react";
+import axios from "axios";
+import { ArrowLeft } from "lucide-react";
+import { API_BASE_URL } from "@/config/api";
 
 type Props = {
-  onRun: () => void;
+  onRunSuccess: (simId: string) => void;
   onBack: () => void;
-  uploadedFileName?: string;
-  allowUpload?: boolean;
 };
 
-const DUMMY_LOGS = [
-  "orderflow_2024_01.log",
-  "client_fix_session.log",
-  "uat_tradeflow.log",
-];
+interface FixVersion {
+  fixVersionId: number;
+  fixVersionName: string;
+  description: string;
+}
 
-const RULES = [
-  "FIX Rule Validation",
-  "AI Error Analysis",
-  "Sequence Check",
-  "Generate Corrections"
-];
+interface SimulatorConfig {
+  simulatorConfigId: number;
+  simulatorConfigName: string;
+  simulatorConfigType: string;
+  beginString: string;
+  senderCompId: string;
+  targetCompId: string;
+  socketConnectHost: string;
+  socketConnectPort: string;
+  fixVersion: FixVersion;
+}
+
+interface UploadLog {
+  uploadId: number;
+  fileName: string;
+  filePath: string;
+  uploadStatus: string;
+  dateCreated: string;
+}
 
 export default function RunCertification({
-  onRun,
+  onRunSuccess,
   onBack,
-  uploadedFileName,
-  allowUpload = true,
 }: Props) {
-  const [logMode, setLogMode] = useState<
-    "previous" | "uploaded" | "upload-new"
-  >(
-    uploadedFileName && !allowUpload
-      ? "uploaded"
-      : "previous"
-  );
-  const [rules, setRules] = useState({
-    fix: true,
-    ai: true,
-    sequence: true,
+  const [simulators, setSimulators] = useState<SimulatorConfig[]>([]);
+  const [fixVersions, setFixVersions] = useState<FixVersion[]>([]);
+  const [uploadLogs, setUploadLogs] = useState<UploadLog[]>([]);
+
+  const [selectedSimulator, setSelectedSimulator] =
+    useState<SimulatorConfig | null>(null);
+  const [selectedFixVersion, setSelectedFixVersion] =
+    useState<FixVersion | null>(null);
+  const [selectedUploadLog, setSelectedUploadLog] =
+    useState<UploadLog | null>(null);
+
+  const [loading, setLoading] = useState(false);
+
+  const [errors, setErrors] = useState({
+    simulator: "",
+    version: "",
+    log: "",
   });
 
+  useEffect(() => {
+    axios
+      .get(`${API_BASE_URL}/rest/simulator/config/type/CLIENT`)
+      .then((res) => setSimulators(res.data || []))
+      .catch((err) => console.error("Simulator fetch failed", err));
+  }, []);
 
-  const [selectedLog, setSelectedLog] = useState(DUMMY_LOGS[0]);
+  useEffect(() => {
+    axios
+      .get(`${API_BASE_URL}/rest/fix/version/all`)
+      .then((res) => setFixVersions(res.data || []))
+      .catch((err) => console.error("Fix version fetch failed", err));
+  }, []);
+
+  useEffect(() => {
+    axios
+      .get(`${API_BASE_URL}/rest/upload/log/all`)
+      .then((res) => {
+        const sortedLogs = (res.data || [])
+          .filter((log: UploadLog) => log.uploadStatus === "COMPLETED")
+          .sort(
+            (a: UploadLog, b: UploadLog) =>
+              new Date(b.dateCreated).getTime() -
+              new Date(a.dateCreated).getTime()
+          );
+
+        setUploadLogs(sortedLogs);
+      })
+      .catch(() => { });
+  }, []);
+
+  const validate = () => {
+    const newErrors = {
+      simulator: selectedSimulator ? "" : "Simulator is required",
+      version: selectedFixVersion ? "" : "FIX Version is required",
+      log: selectedUploadLog ? "" : "Upload Log is required",
+    };
+
+    setErrors(newErrors);
+
+    return !newErrors.simulator && !newErrors.version && !newErrors.log;
+  };
+
+  const handleRun = async () => {
+    if (!validate()) return;
+
+    try {
+      setLoading(true);
+
+      const payload = {
+        simId: null,
+        clientSimulatorConfig: selectedSimulator,
+        brokerSimulatorConfig: selectedSimulator,
+        fixVersion: selectedFixVersion,
+        uploadLog: selectedUploadLog,
+      };
+
+      const { data } = await axios.post(
+        `${API_BASE_URL}/rest/simulation`,
+        payload
+      );
+
+      onRunSuccess(String(data.simId));
+    } catch (err: any) {
+      console.error("Simulation failed", err?.response?.data || err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const isFormValid =
+    selectedSimulator && selectedFixVersion && selectedUploadLog;
 
   return (
-    <div className="card bg-base-100 shadow p-6 space-y-5 w-[720px] max-w-full">
-      <h2 className="text-lg font-semibold">Run Certification</h2>
+    <div className="bg-background border border-border rounded-lg shadow-sm p-8 space-y-6 w-[900px] max-w-full mx-auto">
 
-      <div className="space-y-3">
-        <div
-          className={`
-            flex items-start justify-between gap-4
-            p-3 rounded-md border cursor-pointer
-            ${logMode === "previous"
-              ? "border-primary bg-primary/5"
-              : "border-base-300 hover:bg-base-200"
-            }
-          `}
-          onClick={() => setLogMode("previous")}
+      <h2 className="text-xl font-semibold text-brand">
+        Run Certification
+      </h2>
+
+      <div className="space-y-2">
+        <label className="text-sm font-medium text-text">
+          Select CLIENT Simulator Config
+        </label>
+        <select
+          className={`w-full px-3 py-2 rounded-md bg-background border
+            ${errors.simulator ? "border-red-500" : "border-border"}`}
+          onChange={(e) => {
+            const sim = simulators.find(
+              (s) => s.simulatorConfigId === Number(e.target.value)
+            );
+            setSelectedSimulator(sim || null);
+            setErrors((prev) => ({ ...prev, simulator: "" }));
+          }}
         >
-          <div>
-            <p className="text-sm font-medium">Use previous log</p>
-
-            {logMode === "previous" && (
-              <div className="mt-2">
-                <select
-                  className="
-                    select select-sm
-                    w-64 px-4
-                    border border-black
-                    focus:border-base-400
-                    focus:outline-none
-                  "
-                  value={selectedLog}
-                  onChange={(e) => setSelectedLog(e.target.value)}
-                >
-                  {DUMMY_LOGS.map((log) => (
-                    <option key={log}>{log}</option>
-                  ))}
-                </select>
-              </div>
-            )}
-          </div>
-
-          {logMode === "previous" && (
-            <Check className="text-primary mt-1" size={18} />
-          )}
-        </div>
-
-        {uploadedFileName && !allowUpload && (
-          <div
-            className={`
-              flex items-start justify-between gap-4
-              p-3 rounded-md border cursor-pointer
-              ${logMode === "uploaded"
-                ? "border-primary bg-primary/5"
-                : "border-base-300 hover:bg-base-200"
-              }
-            `}
-            onClick={() => setLogMode("uploaded")}
-          >
-            <div>
-              <p className="text-sm font-medium">Uploaded log</p>
-              <p className="text-sm text-base-content/70 mt-0.5">
-                {uploadedFileName}
-              </p>
-            </div>
-
-            {logMode === "uploaded" && (
-              <Check className="text-primary mt-1" size={18} />
-            )}
-          </div>
-        )}
-
-        {allowUpload && (
-          <div
-            className={`
-              flex items-start justify-between gap-4
-              p-3 rounded-md border cursor-pointer
-              ${logMode === "upload-new"
-                ? "border-primary bg-primary/5"
-                : "border-base-300 hover:bg-base-200"
-              }
-            `}
-            onClick={() => {
-              setLogMode("upload-new");
-              onBack();
-            }}
-          >
-            <p className="text-sm font-medium">
-              Upload new log
-            </p>
-          </div>
+          <option value="">Select Simulator</option>
+          {simulators.map((sim) => (
+            <option
+              key={sim.simulatorConfigId}
+              value={sim.simulatorConfigId}
+            >
+              {sim.simulatorConfigName}
+            </option>
+          ))}
+        </select>
+        {errors.simulator && (
+          <p className="text-xs text-red-500">{errors.simulator}</p>
         )}
       </div>
 
-      <div className="divider my-2" />
-
-      <div className="space-y-3">
-        {RULES.map((label) => (
-          <label
-            key={label}
-            className="flex items-center gap-3 text-sm cursor-pointer select-none"
-          >
-            <input
-              type="checkbox"
-              defaultChecked
-              className="checkbox checkbox-sm"
-            />
-            <span>{label}</span>
-          </label>
-        ))}
+      <div className="space-y-2">
+        <label className="text-sm font-medium text-text">
+          Select FIX Version
+        </label>
+        <select
+          className={`w-full px-3 py-2 rounded-md bg-background border
+            ${errors.version ? "border-red-500" : "border-border"}`}
+          onChange={(e) => {
+            const version = fixVersions.find(
+              (v) => v.fixVersionId === Number(e.target.value)
+            );
+            setSelectedFixVersion(version || null);
+            setErrors((prev) => ({ ...prev, version: "" }));
+          }}
+        >
+          <option value="">Select Version</option>
+          {fixVersions.map((v) => (
+            <option key={v.fixVersionId} value={v.fixVersionId}>
+              {v.fixVersionName}
+            </option>
+          ))}
+        </select>
+        {errors.version && (
+          <p className="text-xs text-red-500">{errors.version}</p>
+        )}
       </div>
 
-      <div className="flex justify-between items-center pt-4">
+      <div className="space-y-2">
+        <label className="text-sm font-medium text-text">
+          Select Uploaded Log
+        </label>
+        <select
+          className={`w-full px-3 py-2 rounded-md bg-background border
+            ${errors.log ? "border-red-500" : "border-border"}`}
+          onChange={(e) => {
+            const log = uploadLogs.find(
+              (l) => l.uploadId === Number(e.target.value)
+            );
+            setSelectedUploadLog(log || null);
+            setErrors((prev) => ({ ...prev, log: "" }));
+          }}
+        >
+          <option value="">Select Log</option>
+          {uploadLogs.map((log) => (
+            <option key={log.uploadId} value={log.uploadId}>
+              {log.fileName}
+            </option>
+          ))}
+        </select>
+        {errors.log && (
+          <p className="text-xs text-red-500">{errors.log}</p>
+        )}
+      </div>
+
+      <div className="flex justify-between items-center pt-6">
         <button
           onClick={onBack}
-          className="px-3 btn btn-sm bg-primary text-primary-content
-            border border-primary hover:bg-transparent hover:text-primary
-            transition-colors flex items-center gap-2 leading-none"
+          className="flex items-center gap-2 px-4 py-2 text-sm border border-border rounded-md"
         >
           <ArrowLeft size={16} />
-          <span>Back</span>
+          Back
         </button>
 
         <button
-          onClick={onRun}
-          className="px-3 btn btn-sm bg-primary text-primary-content
-            border border-primary hover:bg-transparent hover:text-primary
-            transition-colors"
+          onClick={handleRun}
+          disabled={loading || !isFormValid}
+          className={`
+            px-5 py-2 text-sm font-semibold rounded-md
+            ${
+              loading || !isFormValid
+                ? "bg-gray-400 cursor-not-allowed text-white"
+                : "bg-brand text-white hover:bg-brand-dark"
+            }
+          `}
         >
-          Run Certification
+          {loading ? "Running..." : "Run Certification"}
         </button>
       </div>
     </div>

@@ -3,67 +3,70 @@ export function MessageAnalysis({ message }: any) {
 
   if (!a) {
     return (
-      <div className="text-sm text-success">
+      <div className="text-sm text-green-600 font-medium">
         No AI issues detected for this message.
       </div>
     );
   }
 
   return (
-    <div className="space-y-4">
-      <div className="border border-base-300 rounded">
-        <div className="px-4 py-2 border-b border-base-300 bg-base-200 font-semibold text-sm">
-          AI Analysis
-        </div>
+    <div className="space-y-6">
+      <Section title="AI Analysis">
+        <p className="text-sm text-text">{a.summary}</p>
 
-        <div className="px-4 py-3 text-sm space-y-3 bg-base-100">
-          <p>{a.summary}</p>
-
-          {Array.isArray(a.explanation) && (
-            <ul className="list-disc ml-5 space-y-1">
-              {a.explanation.map((item: string, idx: number) => (
-                <li key={idx}>{item}</li>
-              ))}
-            </ul>
-          )}
-        </div>
-      </div>
+        {Array.isArray(a.explanation) && (
+          <ul className="list-disc ml-5 mt-3 space-y-1 text-sm text-text-muted">
+            {a.explanation.map((item: string, idx: number) => (
+              <li key={idx}>{item}</li>
+            ))}
+          </ul>
+        )}
+      </Section>
 
       {a.suggestedFix && (
-        <div className="border border-base-300 rounded">
-          <div className="flex items-center justify-between px-4 py-2 border-b border-base-300 bg-base-200 text-sm font-medium font-semibold">
-            <span>Suggested FIX</span>
-          </div>
-
-          <pre className="px-4 py-3 bg-base-100 text-xs font-mono overflow-x-auto">
+        <Section title="Suggested FIX">
+          <pre className="text-xs font-mono bg-background-muted border border-border rounded-md p-4 overflow-x-auto">
             {a.suggestedFix}
           </pre>
-        </div>
+        </Section>
       )}
-      
-      {a.possibleReason && (
-        <div className="border border-base-300 rounded">
-          <div className="px-4 py-2 border-b border-base-300 bg-base-200 text-sm font-medium font-semibold">
-            Possible Reason
-          </div>
 
-          <div className="px-4 py-3 text-sm bg-base-100">
+      {a.possibleReason && (
+        <Section title="Possible Reason">
+          <div className="text-sm text-text">
             {a.possibleReason}
           </div>
-        </div>
+        </Section>
       )}
 
       {a.recommendation && (
-        <div className="border border-base-300 rounded">
-          <div className="px-4 py-2 border-b border-base-300 bg-base-200 text-sm font-medium font-semibold">
-            Recommendation
-          </div>
-
-          <div className="px-4 py-3 text-sm bg-base-100">
+        <Section title="Recommendation">
+          <div className="text-sm text-text">
             {a.recommendation}
           </div>
-        </div>
+        </Section>
       )}
+    </div>
+  );
+}
+
+
+function Section({
+  title,
+  children,
+}: {
+  title: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="border border-border rounded-lg bg-background shadow-sm">
+      <div className="px-5 py-3 border-b border-border bg-background-muted text-sm font-semibold text-brand">
+        {title}
+      </div>
+
+      <div className="px-5 py-4 space-y-2">
+        {children}
+      </div>
     </div>
   );
 }
