@@ -1,25 +1,41 @@
 import { useEffect, useState } from "react";
 
-export type Theme = "fix-cert" | "fix-cert-dark";
+export type Theme = "light" | "dark";
 
 const STORAGE_KEY = "fix-theme";
 
 export function useTheme() {
-  const [theme, setTheme] = useState<Theme>(() => {
-    return (localStorage.getItem(STORAGE_KEY) as Theme) || "fix-cert";
-  });
+  const getInitialTheme = (): Theme => {
+    const stored = localStorage.getItem(STORAGE_KEY) as Theme | null;
+    if (stored) return stored;
+
+    if (window.matchMedia("(prefers-color-scheme: dark)").matches) {
+      return "dark";
+    }
+
+    return "light";
+  };
+
+  const [theme, setTheme] = useState<Theme>(getInitialTheme);
 
   useEffect(() => {
-    document.documentElement.setAttribute("data-theme", theme);
+    const root = document.documentElement;
+
+    if (theme === "dark") {
+      root.classList.add("dark");
+    } else {
+      root.classList.remove("dark");
+    }
+
+    root.style.colorScheme = theme;
+
     localStorage.setItem(STORAGE_KEY, theme);
   }, [theme]);
 
   return {
     theme,
-    isDark: theme === "fix-cert-dark",
+    isDark: theme === "dark",
     toggle: () =>
-      setTheme((t) =>
-        t === "fix-cert" ? "fix-cert-dark" : "fix-cert"
-      ),
+      setTheme((prev) => (prev === "light" ? "dark" : "light")),
   };
 }

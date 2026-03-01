@@ -4,7 +4,13 @@ import { FixSessionList } from "./FixSessionList";
 export function FixSessionHealth() {
   return (
     <div className="h-full flex flex-col">
-      <div className="p-6 border-b border-border">
+      <div
+        className="
+          p-6
+          border-b border-borderColor dark:border-darkBorder
+          transition-colors duration-300
+        "
+      >
         <FixSessionSummary />
       </div>
 

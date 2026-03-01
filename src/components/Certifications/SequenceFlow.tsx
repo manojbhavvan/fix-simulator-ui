@@ -187,64 +187,89 @@ export default function SequenceFlow({
     };
   }, [simulationId, onCompleted]);
 
-  const statusColor: Record<StreamStatus, string> = {
-    active: "bg-green-500",
-    inactive: "bg-gray-400",
-  };
+  const statusDot =
+    streamStatus === "active"
+      ? "bg-green-500"
+      : "bg-text-muted dark:bg-darkText-muted";
 
   return (
-    <div className="bg-background border border-border rounded-lg shadow-sm p-8 space-y-8 w-[1000px] max-w-full mx-auto">
+    <div
+      className="
+        bg-background dark:bg-darkBackground-muted
+        border border-borderColor dark:border-darkBorder
+        rounded-lg
+        shadow-sm dark:shadow-lg dark:shadow-black/20
+        p-8 space-y-8
+        w-[1000px] max-w-full mx-auto
+        transition-colors duration-300
+      "
+    >
       <div className="flex justify-between items-center">
         <div>
-          <h2 className="text-xl font-semibold text-brand">
+          <h2 className="text-xl font-semibold text-brand dark:text-brand-dark">
             Sequence Flow
           </h2>
-          <p className="text-sm text-text-muted">
+          <p className="text-sm text-text-muted dark:text-darkText-muted">
             Simulation: {simulationId}
           </p>
         </div>
 
-        <div className="flex items-center gap-2">
-          <span
-            className={`w-3 h-3 rounded-full ${statusColor[streamStatus]}`}
-          />
-          <div className="text-sm">
-            {streamStatus === "active" ? (
-              <>
-                <span className="text-green-600 font-medium">
-                  Active
-                </span>
-                <span className="ml-2 text-text-muted">
-                  (Inactive in {countdown}s)
-                </span>
-              </>
-            ) : (
-              <span className="text-gray-500 font-medium">
-                In-Active
+        <div className="flex items-center gap-2 text-sm">
+          <span className={`w-3 h-3 rounded-full ${statusDot}`} />
+
+          {streamStatus === "active" ? (
+            <>
+              <span className="font-medium text-green-600 dark:text-green-400">
+                Active
               </span>
-            )}
-          </div>
+              <span className="text-text-muted dark:text-darkText-muted">
+                (Inactive in {countdown}s)
+              </span>
+            </>
+          ) : (
+            <span className="font-medium text-text-muted dark:text-darkText-muted">
+              Inactive
+            </span>
+          )}
         </div>
       </div>
 
-      <div className="flex flex-wrap items-center gap-2 mt-6">
+      <div className="flex flex-wrap items-center gap-3">
         {events.map((e, index) => (
           <div key={e.id} className="flex items-center">
-            <div className="px-4 py-2 border border-border rounded-md text-sm bg-background">
+            <div
+              className="
+                px-4 py-2
+                border border-borderColor dark:border-darkBorder
+                rounded-md
+                text-sm
+                bg-background dark:bg-darkBackground
+                text-text dark:text-darkText
+                transition-colors duration-200
+              "
+            >
               {e.label} ({e.type})
             </div>
 
             {index !== events.length - 1 && (
               <ArrowRight
                 size={16}
-                className="mx-2 text-text-muted shrink-0"
+                className="mx-2 text-text-muted dark:text-darkText-muted"
               />
             )}
           </div>
         ))}
 
         {events.length === 0 && (
-          <div className="px-4 py-2 border border-dashed rounded-md text-sm text-text-muted">
+          <div
+            className="
+              px-4 py-2
+              border border-dashed border-borderColor dark:border-darkBorder
+              rounded-md
+              text-sm
+              text-text-muted dark:text-darkText-muted
+            "
+          >
             Waiting for messages...
           </div>
         )}
@@ -252,14 +277,14 @@ export default function SequenceFlow({
 
       {issues.length > 0 && (
         <>
-          <div className="h-px bg-border" />
+          <div className="h-px bg-borderColor dark:bg-darkBorder" />
           <div>
-            <h3 className="text-sm font-semibold mb-2">
+            <h3 className="text-sm font-semibold mb-2 text-text dark:text-darkText">
               Issues Detected
             </h3>
             <ul className="text-sm space-y-1">
               {issues.map((issue, i) => (
-                <li key={i} className="text-red-600">
+                <li key={i} className="text-error">
                   • {issue}
                 </li>
               ))}

@@ -12,23 +12,31 @@ export function SessionRow(props: {
   time: string;
 }) {
   return (
-    <tr className="group border-b border-border hover:bg-background-subtle transition-colors cursor-pointer text-xs">
+    <tr
+      className="
+        group
+        border-b border-borderColor dark:border-darkBorder
+        transition-all duration-200
+        cursor-pointer
+        text-sm
+      "
+    >
       <td className="pl-4 py-3">
         <span
           className={`w-2 h-2 rounded-full inline-block ${props.dotColor}`}
         />
       </td>
 
-      <td className="py-3 font-medium text-text">
+      <td className="py-3 font-medium text-text dark:text-darkText">
         <span className="inline-flex items-center gap-1">
           <span>{props.source}</span>
 
-          <ArrowRight className="w-3 h-3 text-text-muted" />
+          <ArrowRight className="w-3 h-3 text-text-muted dark:text-darkText-muted" />
 
           <span>{props.target}</span>
         </span>
 
-        <span className="ml-2 text-[11px] text-text-muted">
+        <span className="ml-2 text-[11px] text-text-muted dark:text-darkText-muted">
           ({props.version})
         </span>
       </td>
@@ -37,15 +45,15 @@ export function SessionRow(props: {
         {props.status}
       </td>
 
-      <td className="py-3 text-text-muted">
+      <td className="py-3 text-text-muted dark:text-darkText-muted">
         {props.detail}
       </td>
 
-      <td className="py-3 text-text-muted">
+      <td className="py-3 text-text-muted dark:text-darkText-muted">
         Seq# {props.seq}
       </td>
 
-      <td className="py-3 text-text-muted">
+      <td className="py-3 text-text-muted dark:text-darkText-muted">
         {props.time}
       </td>
 
@@ -53,9 +61,10 @@ export function SessionRow(props: {
         <ChevronRight
           className="
             w-4 h-4
-            text-text-muted
-            group-hover:text-brand
-            transition-colors
+            text-text-muted dark:text-darkText-muted
+            transition-all duration-200
+            group-hover:translate-x-1
+            group-hover:text-brand dark:group-hover:text-brand-dark
           "
         />
       </td>

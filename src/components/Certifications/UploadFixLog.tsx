@@ -68,8 +68,18 @@ export default function UploadFixLog({ onContinue, onBack }: Props) {
     selectedFile?.name || selectedExistingLog?.fileName;
 
   return (
-    <div className="bg-background border border-border rounded-lg shadow-sm p-8 space-y-8 w-[900px] max-w-full mx-auto">
-      <h2 className="text-xl font-semibold text-brand">
+    <div
+      className="
+        bg-background dark:bg-darkBackground-muted
+        border border-borderColor dark:border-darkBorder
+        rounded-lg
+        shadow-sm dark:shadow-lg dark:shadow-black/20
+        p-8 space-y-8
+        w-[900px] max-w-full mx-auto
+        transition-colors duration-300
+      "
+    >
+      <h2 className="text-xl font-semibold text-brand dark:text-brand-dark">
         Upload / Parse FIX Log
       </h2>
 
@@ -77,11 +87,15 @@ export default function UploadFixLog({ onContinue, onBack }: Props) {
         className={`
           h-44 border-2 border-dashed rounded-lg
           flex flex-col items-center justify-center text-center
-          transition-colors cursor-pointer
+          transition-all duration-200 cursor-pointer
           ${
             isDragging
-              ? "bg-brand/10 border-brand"
-              : "bg-background-muted border-border hover:border-brand"
+              ? "bg-brand/10 border-brand dark:border-brand-dark"
+              : `
+                bg-background-muted dark:bg-darkBackground
+                border-borderColor dark:border-darkBorder
+                hover:border-brand dark:hover:border-brand-dark
+              `
           }
         `}
         onDragOver={(e) => {
@@ -100,15 +114,15 @@ export default function UploadFixLog({ onContinue, onBack }: Props) {
         }}
         onClick={() => fileInputRef.current?.click()}
       >
-        <p className="text-sm font-medium text-text">
+        <p className="text-sm font-medium text-text dark:text-darkText">
           Drop your file here or{" "}
-          <span className="text-brand font-semibold underline">
+          <span className="text-brand dark:text-brand-dark font-semibold underline">
             browse
           </span>
         </p>
 
         {selectedFile && (
-          <p className="mt-3 text-sm text-brand font-medium">
+          <p className="mt-3 text-sm text-brand dark:text-brand-dark font-medium">
             Selected: {selectedFile.name}
           </p>
         )}
@@ -130,32 +144,43 @@ export default function UploadFixLog({ onContinue, onBack }: Props) {
 
       <div>
         <div className="flex items-center justify-between mb-3">
-          <h3 className="text-sm font-semibold text-text">
+          <h3 className="text-sm font-semibold text-text dark:text-darkText">
             Or Select Existing Log
           </h3>
 
           <button
             onClick={handleParseLog}
             disabled={!selectedName}
-            className="px-3 py-1.5 text-xs font-medium rounded-md border border-border bg-background hover:border-brand hover:text-brand disabled:opacity-50 disabled:cursor-not-allowed transition"
+            className="
+              px-3 py-1.5 text-xs font-medium rounded-md
+              border border-borderColor dark:border-darkBorder
+              bg-background dark:bg-darkBackground
+              text-text dark:text-darkText
+              hover:border-brand dark:hover:border-brand-dark
+              hover:text-brand dark:hover:text-brand-dark
+              disabled:opacity-50 disabled:cursor-not-allowed
+              transition-all duration-200
+            "
           >
             Parse Log
           </button>
         </div>
 
         {loadingLogs ? (
-          <p className="text-sm text-text-muted">Loading logs...</p>
+          <p className="text-sm text-text-muted dark:text-darkText-muted">
+            Loading logs...
+          </p>
         ) : (
-          <div className="border rounded-md border-border overflow-hidden">
+          <div className="border border-borderColor dark:border-darkBorder rounded-md overflow-hidden">
             <table className="min-w-full text-sm">
-              <thead className="bg-background-muted text-xs text-text-muted border-b border-border">
+              <thead className="bg-background-muted dark:bg-darkBackground-subtle text-xs text-text-muted dark:text-darkText-muted border-b border-borderColor dark:border-darkBorder">
                 <tr>
                   <th className="px-4 py-3 text-left">File Name</th>
                   <th className="px-4 py-3 text-left">Status</th>
                   <th className="px-4 py-3 text-left">Created</th>
                 </tr>
               </thead>
-              <tbody>
+              <tbody className="divide-y divide-borderColor dark:divide-darkBorder">
                 {uploadedLogs.map((log) => (
                   <tr
                     key={log.uploadId}
@@ -163,15 +188,22 @@ export default function UploadFixLog({ onContinue, onBack }: Props) {
                       setSelectedExistingLog(log);
                       setSelectedFile(null);
                     }}
-                    className={`cursor-pointer border-b border-border hover:bg-background-subtle ${
-                      selectedExistingLog?.uploadId === log.uploadId
-                        ? "bg-brand/10"
-                        : ""
-                    }`}
+                    className={`
+                      cursor-pointer transition-colors duration-200
+                      ${
+                        selectedExistingLog?.uploadId === log.uploadId
+                          ? "bg-brand/10 dark:bg-brand-dark/20"
+                          : ""
+                      }
+                    `}
                   >
-                    <td className="px-4 py-3">{log.fileName}</td>
-                    <td className="px-4 py-3">{log.uploadStatus}</td>
-                    <td className="px-4 py-3">
+                    <td className="px-4 py-3 text-text dark:text-darkText">
+                      {log.fileName}
+                    </td>
+                    <td className="px-4 py-3 text-text-muted dark:text-darkText-muted">
+                      {log.uploadStatus}
+                    </td>
+                    <td className="px-4 py-3 text-text-muted dark:text-darkText-muted">
                       {new Date(log.dateCreated).toLocaleString()}
                     </td>
                   </tr>
@@ -184,13 +216,13 @@ export default function UploadFixLog({ onContinue, onBack }: Props) {
 
       {parsedData.length > 0 && (
         <div>
-          <h3 className="text-base font-semibold mb-4">
+          <h3 className="text-base font-semibold mb-4 text-text dark:text-darkText">
             Parsed Messages
           </h3>
 
-          <div className="overflow-hidden rounded-md border border-border">
+          <div className="overflow-hidden rounded-md border border-borderColor dark:border-darkBorder">
             <table className="min-w-full text-sm">
-              <thead className="bg-background-muted text-xs text-text-muted border-b border-border">
+              <thead className="bg-background-muted dark:bg-darkBackground-subtle text-xs text-text-muted dark:text-darkText-muted border-b border-borderColor dark:border-darkBorder">
                 <tr>
                   <th className="px-4 py-3 text-left w-16">Seq</th>
                   <th className="px-4 py-3 text-left w-24">Msg Type</th>
@@ -198,19 +230,25 @@ export default function UploadFixLog({ onContinue, onBack }: Props) {
                   <th className="px-4 py-3 text-right w-24">Errors</th>
                 </tr>
               </thead>
-              <tbody>
+              <tbody className="divide-y divide-borderColor dark:divide-darkBorder">
                 {parsedData.map((msg) => (
-                  <tr key={msg.seq} className="border-b border-border">
-                    <td className="px-4 py-3">{msg.seq}</td>
-                    <td className="px-4 py-3">{msg.type}</td>
-                    <td className="px-4 py-3">{msg.description}</td>
+                  <tr key={msg.seq}>
+                    <td className="px-4 py-3 text-text dark:text-darkText">
+                      {msg.seq}
+                    </td>
+                    <td className="px-4 py-3 text-text dark:text-darkText">
+                      {msg.type}
+                    </td>
+                    <td className="px-4 py-3 text-text dark:text-darkText">
+                      {msg.description}
+                    </td>
                     <td
                       className={`px-4 py-3 text-right ${
                         msg.errors === "OK"
-                          ? "text-green-600"
+                          ? "text-green-600 dark:text-green-400"
                           : msg.errors
-                          ? "text-red-600"
-                          : "text-text-muted"
+                          ? "text-error"
+                          : "text-text-muted dark:text-darkText-muted"
                       }`}
                     >
                       {msg.errors ?? "-"}
@@ -226,7 +264,16 @@ export default function UploadFixLog({ onContinue, onBack }: Props) {
       <div className="flex justify-between items-center pt-6">
         <button
           onClick={onBack}
-          className="flex items-center gap-2 px-4 py-2 text-sm font-medium border border-border rounded-md bg-background hover:border-brand hover:text-brand"
+          className="
+            flex items-center gap-2 px-4 py-2 text-sm font-medium
+            border border-borderColor dark:border-darkBorder
+            rounded-md
+            bg-background dark:bg-darkBackground
+            text-text dark:text-darkText
+            hover:border-brand dark:hover:border-brand-dark
+            hover:text-brand dark:hover:text-brand-dark
+            transition-all duration-200
+          "
         >
           <ArrowLeft size={16} />
           Back
@@ -235,7 +282,23 @@ export default function UploadFixLog({ onContinue, onBack }: Props) {
         <button
           onClick={() => onContinue(selectedName)}
           disabled={!selectedName}
-          className="px-5 py-2 text-sm font-semibold rounded-md bg-brand text-white disabled:opacity-50"
+          className={`
+            px-5 py-2 text-sm font-semibold rounded-md
+            transition-all duration-200
+            ${
+              !selectedName
+                ? `
+                  border border-borderColor dark:border-darkBorder
+                  bg-background dark:bg-darkBackground
+                  text-text-muted dark:text-darkText-muted
+                  cursor-not-allowed
+                `
+                : `
+                  bg-brand text-white
+                  hover:bg-brand-dark
+                `
+            }
+          `}
         >
           Continue to Certification
         </button>

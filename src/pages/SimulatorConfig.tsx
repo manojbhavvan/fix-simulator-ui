@@ -218,23 +218,23 @@ export default function SimulatorConfigScreen() {
 
   if (initialLoading) {
     return (
-      <div className="min-h-screen bg-slate-100 flex items-center justify-center">
-        <div className="h-10 w-10 border-4 border-slate-300 border-t-[#465391] rounded-full animate-spin" />
+      <div className="min-h-[calc(100vh-var(--navbar-height))] bg-background dark:bg-darkBackground flex items-center justify-center transition-colors duration-300">
+        <div className="h-10 w-10 border-4 border-borderColor dark:border-darkBorder border-t-brand rounded-full animate-spin" />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-slate-100 py-12 px-8 relative">
-      <div className="max-w-6xl mx-auto bg-white border border-slate-200 rounded-xl p-10">
+    <div className="min-h-[calc(100vh-var(--navbar-height))] bg-background dark:bg-darkBackground py-10 px-8 transition-colors duration-300 relative">
+      <div className="max-w-6xl mx-auto bg-background dark:bg-darkBackground-muted border border-borderColor dark:border-darkBorder rounded-xl p-10 shadow-sm dark:shadow-lg dark:shadow-black/20 transition-colors duration-300">
 
         <div className="mb-10">
-          <h1 className="text-3xl font-semibold text-slate-900">
+          <h1 className="text-3xl font-semibold text-text dark:text-darkText">
             {isEditMode
               ? "Edit Simulator Configuration"
               : "Create Simulator Configuration"}
           </h1>
-          <p className="text-sm text-slate-500 mt-2">
+          <p className="text-sm text-text-muted dark:text-darkText-muted mt-2">
             Configure client or broker FIX connectivity parameters
           </p>
         </div>
@@ -282,51 +282,31 @@ export default function SimulatorConfigScreen() {
         </Section>
 
         <Section title="Connection Information">
-          <InputField
-            label="Begin String"
-            value={form.beginString}
-            error={errors.beginString}
+          <InputField label="Begin String" value={form.beginString} error={errors.beginString}
             onBlur={() => handleBlur("beginString")}
-            onChange={(v) => handleChange("beginString", v)}
-          />
+            onChange={(v) => handleChange("beginString", v)} />
 
-          <InputField
-            label="Sender Comp ID"
-            value={form.senderCompId}
-            error={errors.senderCompId}
+          <InputField label="Sender Comp ID" value={form.senderCompId} error={errors.senderCompId}
             onBlur={() => handleBlur("senderCompId")}
-            onChange={(v) => handleChange("senderCompId", v)}
-          />
+            onChange={(v) => handleChange("senderCompId", v)} />
 
-          <InputField
-            label="Target Comp ID"
-            value={form.targetCompId}
-            error={errors.targetCompId}
+          <InputField label="Target Comp ID" value={form.targetCompId} error={errors.targetCompId}
             onBlur={() => handleBlur("targetCompId")}
-            onChange={(v) => handleChange("targetCompId", v)}
-          />
+            onChange={(v) => handleChange("targetCompId", v)} />
 
-          <InputField
-            label="Socket Connect Host"
-            value={form.socketConnectHost}
-            error={errors.socketConnectHost}
+          <InputField label="Socket Connect Host" value={form.socketConnectHost} error={errors.socketConnectHost}
             onBlur={() => handleBlur("socketConnectHost")}
-            onChange={(v) => handleChange("socketConnectHost", v)}
-          />
+            onChange={(v) => handleChange("socketConnectHost", v)} />
 
-          <InputField
-            label="Socket Connect Port"
-            value={form.socketConnectPort}
-            error={errors.socketConnectPort}
+          <InputField label="Socket Connect Port" value={form.socketConnectPort} error={errors.socketConnectPort}
             onBlur={() => handleBlur("socketConnectPort")}
-            onChange={(v) => handleChange("socketConnectPort", v)}
-          />
+            onChange={(v) => handleChange("socketConnectPort", v)} />
         </Section>
 
-        <div className="flex justify-end gap-4 mt-10 border-t border-slate-200 pt-6">
+        <div className="flex justify-end gap-4 mt-10 border-t border-borderColor dark:border-darkBorder pt-6">
           <button
             onClick={() => navigate("/simulator/config")}
-            className="h-10 px-6 text-sm font-medium rounded-md border border-slate-300 text-slate-700 bg-white hover:bg-slate-50 transition"
+            className="h-10 px-6 text-sm font-medium rounded-md border border-borderColor dark:border-darkBorder text-text dark:text-darkText bg-background dark:bg-darkBackground-subtle"
           >
             Cancel
           </button>
@@ -334,10 +314,10 @@ export default function SimulatorConfigScreen() {
           <button
             onClick={handleSave}
             disabled={!isFormValid || loading}
-            className={`h-10 px-6 text-sm font-medium rounded-md text-white transition ${
+            className={`h-10 px-6 text-sm font-semibold rounded-md text-white transition-colors ${
               isFormValid
-                ? "bg-[#465391] hover:bg-[#3b457a]"
-                : "bg-[#465391]/50 cursor-not-allowed"
+                ? "bg-brand hover:bg-brand-dark"
+                : "bg-brand/50 cursor-not-allowed"
             }`}
           >
             {loading
@@ -353,24 +333,22 @@ export default function SimulatorConfigScreen() {
         <div className="fixed top-6 left-1/2 -translate-x-1/2 z-50 w-full max-w-md px-4">
           <div className={`flex items-start gap-3 p-4 rounded-xl border shadow-lg ${
             toast.type === "success"
-              ? "bg-green-50 border-green-300"
-              : "bg-red-50 border-red-300"
+              ? "bg-green-50 border-green-200 dark:bg-green-900/20 dark:border-green-700/40"
+              : "bg-red-50 border-red-200 dark:bg-red-900/20 dark:border-red-700/40"
           }`}>
-            {toast.type === "success" ? (
-              <CheckCircle className="text-green-600 w-5 h-5" />
-            ) : (
-              <XCircle className="text-red-600 w-5 h-5" />
-            )}
+            {toast.type === "success"
+              ? <CheckCircle className="w-5 h-5 text-green-600 dark:text-green-400" />
+              : <XCircle className="w-5 h-5 text-red-600 dark:text-red-400" />}
             <div className="flex-1">
-              <p className="font-semibold text-slate-800 text-sm">
+              <p className="font-semibold text-text dark:text-darkText text-sm">
                 {toast.title}
               </p>
-              <p className="text-xs text-slate-600 mt-1">
+              <p className="text-xs text-text-muted dark:text-darkText-muted mt-1">
                 {toast.message}
               </p>
             </div>
             <button onClick={() => setToast(null)}>
-              <X className="w-4 h-4 text-slate-500" />
+              <X className="w-4 h-4 text-text-muted dark:text-darkText-muted" />
             </button>
           </div>
         </div>
@@ -388,7 +366,7 @@ function Section({
 }) {
   return (
     <div className="mb-12">
-      <h2 className="text-base font-semibold text-slate-800 border-b border-slate-200 pb-3 mb-8">
+      <h2 className="text-base font-semibold text-text dark:text-darkText border-b border-borderColor dark:border-darkBorder pb-3 mb-8">
         {title}
       </h2>
       <div className="grid grid-cols-2 gap-x-10 gap-y-8">

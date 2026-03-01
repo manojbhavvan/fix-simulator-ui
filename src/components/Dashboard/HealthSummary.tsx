@@ -19,22 +19,30 @@ function Stat({
   variant: "active" | "good" | "degraded" | "down";
 }) {
   const colors = {
-    active: "text-brand",
-    good: "text-green-600",
-    degraded: "text-amber-600",
-    down: "text-red-600",
+    active: "text-brand dark:text-brand-dark",
+    good: "text-green-600 dark:text-green-400",
+    degraded: "text-amber-600 dark:text-amber-400",
+    down: "text-red-600 dark:text-red-400",
   };
+
   return (
-    <div className="border border-border bg-background rounded-lg p-4 shadow-sm">
-      
-      <div className="text-xs text-text-muted uppercase tracking-wide">
+    <div
+      className="
+        border border-borderColor dark:border-darkBorder
+        bg-background dark:bg-darkBackground-muted
+        rounded-lg
+        p-4
+        shadow-sm dark:shadow-md dark:shadow-black/20
+        transition-colors duration-300
+      "
+    >
+      <div className="text-xs text-text-muted dark:text-darkText-muted uppercase tracking-wide">
         {title}
       </div>
 
       <div className={`mt-2 text-2xl font-semibold ${colors[variant]}`}>
         {value}
       </div>
-      
     </div>
   );
 }

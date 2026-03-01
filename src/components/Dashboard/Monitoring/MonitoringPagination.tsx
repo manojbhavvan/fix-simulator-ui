@@ -5,13 +5,14 @@ export function MonitoringPagination() {
     <div
       className="
         px-4 py-3
-        border-t border-border
+        border-t border-borderColor dark:border-darkBorder
         flex items-center justify-between
-        text-xs text-text-muted
-        bg-background
+        text-sm text-text-muted dark:text-darkText-muted
+        bg-background dark:bg-darkBackground-muted
+        transition-colors duration-300
       "
     >
-      <span className="font-medium">
+      <span className="font-medium text-text dark:text-darkText">
         1–4 of 4
       </span>
 
@@ -19,12 +20,13 @@ export function MonitoringPagination() {
         <button
           disabled
           className="
-            h-7 w-7
+            h-8 w-8
             flex items-center justify-center
             rounded-md
-            border border-border
-            text-text-muted
-            bg-background-muted
+            border border-borderColor dark:border-darkBorder
+            text-text-muted dark:text-darkText-muted
+            bg-background dark:bg-darkBackground
+            transition-all duration-200
             disabled:opacity-40
             disabled:cursor-not-allowed
           "
@@ -34,17 +36,18 @@ export function MonitoringPagination() {
 
         <button
           className="
-            h-7 w-7
+            h-8 w-8
             flex items-center justify-center
             rounded-md
-            border border-border
-            text-text-muted
-            bg-background-muted
-            hover:bg-brand hover:text-white hover:border-brand
-            transition-colors
+            border border-borderColor dark:border-darkBorder
+            text-text dark:text-darkText
+            bg-background dark:bg-darkBackground
+            transition-all duration-200
+            hover:border-brand dark:hover:border-brand-dark
+            hover:text-brand dark:hover:text-brand-dark
           "
         >
-          <ChevronRight className="w-4 h-4" />
+          <ChevronRight className="w-4 h-4 transition-transform duration-200 group-hover:translate-x-0.5" />
         </button>
       </div>
     </div>

@@ -42,11 +42,9 @@ export function RecentCertifications() {
   const fetchSimulations = async () => {
     try {
       setLoading(true);
-
       const response = await axios.get<Simulation[]>(
         `${API_BASE_URL}/rest/simulation/all`
       );
-
       setData(response.data || []);
     } catch (error) {
       console.error("Failed to fetch simulations", error);
@@ -61,15 +59,28 @@ export function RecentCertifications() {
 
   return (
     <div className="flex flex-col">
-      <h2 className="text-lg font-semibold tracking-wide text-brand pb-4">
+      <h2 className="text-lg font-semibold tracking-wide text-brand dark:text-brand-dark pb-4">
         Recent Certifications
       </h2>
 
       <div className="flex flex-col">
-        <div className="overflow-hidden rounded-lg border border-border bg-background shadow-sm">
+        <div
+          className="
+            overflow-hidden rounded-lg
+            border border-borderColor dark:border-darkBorder
+            bg-background dark:bg-darkBackground-muted
+            shadow-sm
+            transition-colors duration-300
+          "
+        >
           <table className="min-w-full text-sm">
-            <thead className="bg-background-muted border-b border-border">
-              <tr className="text-left text-xs font-normal text-text-muted tracking-wide">
+            <thead
+              className="
+                bg-background-muted dark:bg-darkBackground-subtle dark:shadow-inner
+                border-b border-borderColor dark:border-darkBorder
+              "
+            >
+              <tr className="text-left text-xs font-medium text-text-muted dark:text-darkText-muted tracking-wide">
                 <th className="px-4 py-3">Simulation ID</th>
                 <th className="px-4 py-3">File</th>
                 <th className="px-4 py-3">Version</th>
@@ -81,7 +92,10 @@ export function RecentCertifications() {
             <tbody>
               {loading && (
                 <tr>
-                  <td colSpan={5} className="text-center py-6 text-text-muted">
+                  <td
+                    colSpan={5}
+                    className="text-center py-6 text-text-muted dark:text-darkText-muted"
+                  >
                     Loading...
                   </td>
                 </tr>
@@ -89,7 +103,10 @@ export function RecentCertifications() {
 
               {!loading && paginatedData.length === 0 && (
                 <tr>
-                  <td colSpan={5} className="text-center py-6 text-text-muted">
+                  <td
+                    colSpan={5}
+                    className="text-center py-6 text-text-muted dark:text-darkText-muted"
+                  >
                     No data available
                   </td>
                 </tr>
@@ -112,20 +129,40 @@ export function RecentCertifications() {
         {totalPages > 1 && (
           <div className="flex justify-end items-center gap-4 mt-4 shrink-0">
             <button
-              className="h-8 w-8 flex items-center justify-center rounded-md border border-border bg-background hover:bg-brand hover:text-white transition"
+              className="
+                h-8 w-8 flex items-center justify-center rounded-md
+                border border-borderColor dark:border-darkBorder
+                bg-background dark:bg-darkBackground-muted
+                hover:bg-brand hover:text-white
+                transition-colors duration-200
+                disabled:opacity-40 disabled:cursor-not-allowed
+              "
               disabled={page === 1}
               onClick={() => setPage((p) => p - 1)}
             >
               <ChevronLeft size={16} />
             </button>
 
-            <span className="text-sm text-text-muted">
-              Page <span className="font-medium text-text">{page}</span> of{" "}
-              <span className="font-medium text-text">{totalPages}</span>
+            <span className="text-sm text-text-muted dark:text-darkText-muted">
+              Page{" "}
+              <span className="font-medium text-text dark:text-darkText">
+                {page}
+              </span>{" "}
+              of{" "}
+              <span className="font-medium text-text dark:text-darkText">
+                {totalPages}
+              </span>
             </span>
 
             <button
-              className="h-8 w-8 flex items-center justify-center rounded-md border border-border bg-background hover:bg-brand hover:text-white transition"
+              className="
+                h-8 w-8 flex items-center justify-center rounded-md
+                border border-borderColor dark:border-darkBorder
+                bg-background dark:bg-darkBackground-muted
+                hover:bg-brand hover:text-white
+                transition-colors duration-200
+                disabled:opacity-40 disabled:cursor-not-allowed
+              "
               disabled={page === totalPages}
               onClick={() => setPage((p) => p + 1)}
             >
@@ -164,21 +201,31 @@ function Row({
   return (
     <tr
       onClick={onClick}
-      className="border-b border-border hover:bg-background-subtle transition-colors text-xs cursor-pointer"
+      className="
+        border-b border-borderColor dark:border-darkBorder
+        hover:bg-background-subtle 
+        dark:hover:bg-[#1B2A45]
+        transition-colors duration-200
+        text-xs cursor-pointer
+      "
     >
-      <td className="px-4 py-3 font-semibold text-brand">
+      <td className="px-4 py-3 font-semibold text-brand dark:text-brand-dark">
         {item.simId}
       </td>
-      <td className="px-4 py-3 font-medium text-text">
+
+      <td className="px-4 py-3 font-medium text-text dark:text-darkText">
         {fileName}
       </td>
-      <td className="px-4 py-3 text-text-muted">
+
+      <td className="px-4 py-3 text-text-muted dark:text-darkText-muted">
         {formatVersion(item.fixVersion)}
       </td>
-      <td className="px-4 py-3 text-text-muted">
+
+      <td className="px-4 py-3 text-text-muted dark:text-darkText-muted">
         {formatDate(item.dateCreated)}
       </td>
-      <td className="px-4 py-3 text-text-muted">
+
+      <td className="px-4 py-3 text-text-muted dark:text-darkText-muted">
         {formatDate(item.dateModified)}
       </td>
     </tr>

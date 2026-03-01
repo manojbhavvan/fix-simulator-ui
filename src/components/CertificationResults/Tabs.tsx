@@ -16,7 +16,7 @@ export function Tabs({
   ];
 
   return (
-    <div className="border-b border-border">
+    <div className="border-b border-borderColor dark:border-darkBorder transition-colors duration-300">
       <div className="flex gap-6 overflow-x-auto scrollbar-hide">
         {tabs.map((t) => {
           const isActive = active === t.key;
@@ -27,11 +27,11 @@ export function Tabs({
               onClick={() => onChange(t.key)}
               className={`
                 relative pb-3 pt-2 text-sm font-medium whitespace-nowrap
-                transition-colors
+                transition-colors duration-200
                 ${
                   isActive
                     ? "text-brand"
-                    : "text-text-muted hover:text-text"
+                    : "text-text-muted dark:text-darkText-muted hover:text-text dark:hover:text-darkText"
                 }
               `}
             >

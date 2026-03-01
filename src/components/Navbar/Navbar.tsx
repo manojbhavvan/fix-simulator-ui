@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { NavItem } from "./NavItem";
+import { useTheme } from "../../theme/useTheme";
+import { Sun, Moon } from "lucide-react";
 
 type TabKey = "dashboard" | "fileUpload" | "monitoring" | "simconfig";
 
@@ -8,6 +10,7 @@ export function Navbar() {
   const navRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
   const location = useLocation();
+  const { isDark, toggle } = useTheme();
 
   const tabsRef = useRef<Record<TabKey, HTMLDivElement | null>>({
     dashboard: null,
@@ -60,26 +63,45 @@ export function Navbar() {
   return (
     <div
       ref={navRef}
-      className="sticky top-0 z-50 bg-background border-b border-border shadow-sm"
+      className="
+        sticky top-0 z-50 
+        bg-background dark:bg-darkBackground
+        border-b border-borderColor dark:border-darkBorder
+        shadow-sm
+        transition-colors duration-300
+      "
     >
-      <div className="px-6 py-4 border-b border-border bg-background flex items-center">
+      <div className="px-6 py-4 flex items-center justify-between">
         <div
           className="flex items-center gap-3 cursor-pointer"
           onClick={() => navigate("/dashboard")}
         >
-          <img
-            src="/logo.svg"
-            alt="IntelliFIX Logo"
-            className="h-8 w-auto"
-          />
+          <img src="/logo.svg" alt="IntelliFIX Logo" className="h-8 w-auto" />
           <h1 className="text-2xl font-semibold text-brand tracking-tight flex items-baseline">
             Intelli
-            <span className="text-text">FIX</span>
-            <span className="text-[10px] text-text/50 ml-1">
+            <span className="text-text dark:text-darkText">FIX</span>
+            <span className="text-[10px] ml-1 text-text-muted dark:text-darkText/60">
               Simulation Engine
             </span>
           </h1>
         </div>
+
+        <button
+          onClick={toggle}
+          className="
+            p-2 rounded-lg
+            bg-background-muted dark:bg-darkBackground-muted
+            border border-borderColor dark:border-darkBorder
+            hover:bg-background-subtle dark:hover:bg-darkBackground-subtle
+            transition-colors duration-300
+          "
+        >
+          {isDark ? (
+            <Sun size={18} className="text-yellow-400" />
+          ) : (
+            <Moon size={18} className="text-text-muted" />
+          )}
+        </button>
       </div>
 
       <div className="px-6 relative">

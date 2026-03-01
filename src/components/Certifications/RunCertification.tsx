@@ -61,14 +61,14 @@ export default function RunCertification({
     axios
       .get(`${API_BASE_URL}/rest/simulator/config/type/CLIENT`)
       .then((res) => setSimulators(res.data || []))
-      .catch((err) => console.error("Simulator fetch failed", err));
+      .catch(() => {});
   }, []);
 
   useEffect(() => {
     axios
       .get(`${API_BASE_URL}/rest/fix/version/all`)
       .then((res) => setFixVersions(res.data || []))
-      .catch((err) => console.error("Fix version fetch failed", err));
+      .catch(() => {});
   }, []);
 
   useEffect(() => {
@@ -82,10 +82,9 @@ export default function RunCertification({
               new Date(b.dateCreated).getTime() -
               new Date(a.dateCreated).getTime()
           );
-
         setUploadLogs(sortedLogs);
       })
-      .catch(() => { });
+      .catch(() => {});
   }, []);
 
   const validate = () => {
@@ -96,7 +95,6 @@ export default function RunCertification({
     };
 
     setErrors(newErrors);
-
     return !newErrors.simulator && !newErrors.version && !newErrors.log;
   };
 
@@ -130,20 +128,44 @@ export default function RunCertification({
   const isFormValid =
     selectedSimulator && selectedFixVersion && selectedUploadLog;
 
-  return (
-    <div className="bg-background border border-border rounded-lg shadow-sm p-8 space-y-6 w-[900px] max-w-full mx-auto">
+  const selectBase = `
+    w-full px-3 py-2.5
+    rounded-md
+    border
+    bg-background dark:bg-darkBackground
+    text-text dark:text-darkText
+    border-borderColor dark:border-darkBorder
+    focus:outline-none
+    focus:ring-1 focus:ring-brand dark:focus:ring-brand-dark
+    transition-all duration-200
+  `;
 
-      <h2 className="text-xl font-semibold text-brand">
+  return (
+    <div
+      className="
+        bg-background dark:bg-darkBackground-muted
+        border border-borderColor dark:border-darkBorder
+        rounded-lg
+        shadow-sm dark:shadow-lg dark:shadow-black/20
+        p-8 space-y-6
+        w-[900px] max-w-full mx-auto
+        transition-colors duration-300
+      "
+    >
+      <h2 className="text-xl font-semibold text-brand dark:text-brand-dark">
         Run Certification
       </h2>
 
       <div className="space-y-2">
-        <label className="text-sm font-medium text-text">
+        <label className="text-sm font-medium text-text dark:text-darkText">
           Select CLIENT Simulator Config
         </label>
         <select
-          className={`w-full px-3 py-2 rounded-md bg-background border
-            ${errors.simulator ? "border-red-500" : "border-border"}`}
+          className={`${selectBase} ${
+            errors.simulator
+              ? "border-error focus:ring-error"
+              : ""
+          }`}
           onChange={(e) => {
             const sim = simulators.find(
               (s) => s.simulatorConfigId === Number(e.target.value)
@@ -163,17 +185,18 @@ export default function RunCertification({
           ))}
         </select>
         {errors.simulator && (
-          <p className="text-xs text-red-500">{errors.simulator}</p>
+          <p className="text-xs text-error">{errors.simulator}</p>
         )}
       </div>
 
       <div className="space-y-2">
-        <label className="text-sm font-medium text-text">
+        <label className="text-sm font-medium text-text dark:text-darkText">
           Select FIX Version
         </label>
         <select
-          className={`w-full px-3 py-2 rounded-md bg-background border
-            ${errors.version ? "border-red-500" : "border-border"}`}
+          className={`${selectBase} ${
+            errors.version ? "border-error focus:ring-error" : ""
+          }`}
           onChange={(e) => {
             const version = fixVersions.find(
               (v) => v.fixVersionId === Number(e.target.value)
@@ -190,17 +213,18 @@ export default function RunCertification({
           ))}
         </select>
         {errors.version && (
-          <p className="text-xs text-red-500">{errors.version}</p>
+          <p className="text-xs text-error">{errors.version}</p>
         )}
       </div>
 
       <div className="space-y-2">
-        <label className="text-sm font-medium text-text">
+        <label className="text-sm font-medium text-text dark:text-darkText">
           Select Uploaded Log
         </label>
         <select
-          className={`w-full px-3 py-2 rounded-md bg-background border
-            ${errors.log ? "border-red-500" : "border-border"}`}
+          className={`${selectBase} ${
+            errors.log ? "border-error focus:ring-error" : ""
+          }`}
           onChange={(e) => {
             const log = uploadLogs.find(
               (l) => l.uploadId === Number(e.target.value)
@@ -217,14 +241,24 @@ export default function RunCertification({
           ))}
         </select>
         {errors.log && (
-          <p className="text-xs text-red-500">{errors.log}</p>
+          <p className="text-xs text-error">{errors.log}</p>
         )}
       </div>
 
       <div className="flex justify-between items-center pt-6">
         <button
           onClick={onBack}
-          className="flex items-center gap-2 px-4 py-2 text-sm border border-border rounded-md"
+          className="
+            flex items-center gap-2
+            px-4 py-2 text-sm
+            border border-borderColor dark:border-darkBorder
+            rounded-md
+            text-text dark:text-darkText
+            bg-background dark:bg-darkBackground
+            hover:border-brand dark:hover:border-brand-dark
+            hover:text-brand dark:hover:text-brand-dark
+            transition-all duration-200
+          "
         >
           <ArrowLeft size={16} />
           Back
@@ -235,10 +269,19 @@ export default function RunCertification({
           disabled={loading || !isFormValid}
           className={`
             px-5 py-2 text-sm font-semibold rounded-md
+            transition-all duration-200
             ${
               loading || !isFormValid
-                ? "bg-gray-400 cursor-not-allowed text-white"
-                : "bg-brand text-white hover:bg-brand-dark"
+                ? `
+                  border border-borderColor dark:border-darkBorder
+                  bg-background dark:bg-darkBackground
+                  text-text-muted dark:text-darkText-muted
+                  cursor-not-allowed
+                `
+                : `
+                  bg-brand text-white
+                  hover:bg-brand-dark
+                `
             }
           `}
         >
