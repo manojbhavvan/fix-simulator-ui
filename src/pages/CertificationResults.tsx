@@ -339,48 +339,48 @@ export function CertificationResults() {
                       )}
 
 
-                    {activeTab === "heartbeat" && (
-                      <div className="max-w-md">
-                        <div className="border border-borderColor dark:border-darkBorder rounded-lg p-6 bg-background dark:bg-darkBackground-subtle space-y-4">
+                      {activeTab === "heartbeat" && (
+                        <div className="max-w-md">
+                          <div className="border border-borderColor dark:border-darkBorder rounded-lg p-6 bg-background dark:bg-darkBackground-subtle space-y-4">
 
-                          <div className="flex items-center justify-between">
-                            <span className="text-sm font-semibold text-text dark:text-darkText">
-                              Session Live Status
-                            </span>
+                            <div className="flex items-center justify-between">
+                              <span className="text-sm font-semibold text-text dark:text-darkText">
+                                Session Live Status
+                              </span>
 
-                            <div className="flex items-center gap-2">
-                              <span
-                                className={`w-3 h-3 rounded-full ${isLive
+                              <div className="flex items-center gap-2">
+                                <span
+                                  className={`w-3 h-3 rounded-full ${isLive
                                     ? "bg-green-500"
                                     : "bg-red-500"
-                                  }`}
-                              />
-                              <span
-                                className={`text-sm font-medium ${isLive
+                                    }`}
+                                />
+                                <span
+                                  className={`text-sm font-medium ${isLive
                                     ? "text-green-600"
                                     : "text-red-600"
-                                  }`}
-                              >
-                                {isLive ? "Live" : "Disconnected"}
-                              </span>
+                                    }`}
+                                >
+                                  {isLive ? "Live" : "Disconnected"}
+                                </span>
+                              </div>
+                            </div>
+
+                            <div className="h-px bg-borderColor dark:bg-darkBorder" />
+
+                            <div>
+                              <p className="text-xs text-text-muted dark:text-darkText-muted">
+                                Last Heartbeat
+                              </p>
+                              <p className="text-sm font-medium text-text dark:text-darkText mt-1">
+                                {lastHeartbeatTime
+                                  ? lastHeartbeatTime.toLocaleString()
+                                  : "No heartbeat received yet"}
+                              </p>
                             </div>
                           </div>
-
-                          <div className="h-px bg-borderColor dark:bg-darkBorder" />
-
-                          <div>
-                            <p className="text-xs text-text-muted dark:text-darkText-muted">
-                              Last Heartbeat
-                            </p>
-                            <p className="text-sm font-medium text-text dark:text-darkText mt-1">
-                              {lastHeartbeatTime
-                                ? lastHeartbeatTime.toLocaleString()
-                                : "No heartbeat received yet"}
-                            </p>
-                          </div>
                         </div>
-                      </div>
-                    )}
+                      )}
 
                       {activeTab === "ai" && (
                         <MessageAnalysis message={selectedMessage} />
@@ -394,14 +394,10 @@ export function CertificationResults() {
             ) : (
               <AdvancedReplayView
                 sessions={advancedSessions}
-                messages={sessionMessages}
-                selectedMessage={selectedMessage}
-                onSelectMessage={setSelectedMessage}
               />
             )}
 
           </div>
-
         </div>
       </div>
     </div>
