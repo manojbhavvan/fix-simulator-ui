@@ -76,6 +76,7 @@ export function CertificationResults() {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [advancedView, setAdvancedView] = useState(false);
   const [advancedSessions, setAdvancedSessions] = useState<any[]>([]);
+  const [showAIAnalysis, setShowAIAnalysis] = useState(false);
 
   const [lastHeartbeatTime, setLastHeartbeatTime] = useState<Date | null>(null);
   const [isLive, setIsLive] = useState(false);
@@ -236,34 +237,47 @@ export function CertificationResults() {
           </div>
 
           {uploadLog && (
-            <div className="px-6 py-3 border-b border-borderColor dark:border-darkBorder bg-background-muted dark:bg-darkBackground-muted flex items-center gap-6 text-sm">
+            <div className="px-6 py-3 border-b border-borderColor dark:border-darkBorder bg-background-muted dark:bg-darkBackground-muted flex items-center justify-between text-sm">
 
-              <div className="text-text dark:text-darkText">
-                <span className="text-text-muted dark:text-darkText-muted mr-1">
-                  Uploaded File:
-                </span>
-                <span className="font-medium">
-                  {uploadLog.fileName}
-                </span>
+              <div className="flex items-center gap-6">
+
+                <div className="text-text dark:text-darkText">
+                  <span className="text-text-muted dark:text-darkText-muted mr-1">
+                    Uploaded File:
+                  </span>
+                  <span className="font-medium">
+                    {uploadLog.fileName}
+                  </span>
+                </div>
+
+                <div className="text-text dark:text-darkText">
+                  <span className="text-text-muted dark:text-darkText-muted mr-1">
+                    Status:
+                  </span>
+                  <span className="font-medium">
+                    {uploadLog.uploadStatus}
+                  </span>
+                </div>
+
+                <div className="text-text dark:text-darkText">
+                  <span className="text-text-muted dark:text-darkText-muted mr-1">
+                    Uploaded At:
+                  </span>
+                  <span className="font-medium">
+                    {new Date(uploadLog.dateCreated).toLocaleString()}
+                  </span>
+                </div>
+
               </div>
 
-              <div className="text-text dark:text-darkText">
-                <span className="text-text-muted dark:text-darkText-muted mr-1">
-                  Status:
-                </span>
-                <span className="font-medium">
-                  {uploadLog.uploadStatus}
-                </span>
-              </div>
-
-              <div className="text-text dark:text-darkText">
-                <span className="text-text-muted dark:text-darkText-muted mr-1">
-                  Uploaded At:
-                </span>
-                <span className="font-medium">
-                  {new Date(uploadLog.dateCreated).toLocaleString()}
-                </span>
-              </div>
+              {advancedView && (
+                <button
+                  onClick={() => setShowAIAnalysis((p) => !p)}
+                  className="px-3 py-1 text-xs font-medium rounded-md bg-brand text-white"
+                >
+                  AI Analysis
+                </button>
+              )}
 
             </div>
           )}
@@ -394,6 +408,7 @@ export function CertificationResults() {
             ) : (
               <AdvancedReplayView
                 sessions={advancedSessions}
+                showAIAnalysis={showAIAnalysis}
               />
             )}
 
