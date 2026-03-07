@@ -2,9 +2,9 @@ import { monitoringSessions } from "@/mocks/monitoringSessions";
 import { MonitoringPagination } from "./MonitoringPagination";
 
 const statusColor = {
-  Healthy: "text-green-600",
-  Down: "text-red-600",
-  Degraded: "text-amber-600",
+  Healthy: "text-green-600 dark:text-green-400",
+  Down: "text-red-600 dark:text-red-400",
+  Degraded: "text-amber-600 dark:text-amber-400",
 };
 
 const statusDot = {
@@ -15,12 +15,27 @@ const statusDot = {
 
 export function MonitoringTable() {
   return (
-    <div className="border border-border rounded-lg bg-background flex flex-col overflow-hidden shadow-sm">
-      
+    <div
+      className="
+        border border-borderColor dark:border-darkBorder
+        rounded-lg
+        bg-background dark:bg-darkBackground-muted
+        flex flex-col overflow-hidden
+        shadow-sm dark:shadow-lg dark:shadow-black/20
+        transition-colors duration-300
+      "
+    >
       <div className="flex-1 overflow-auto">
-        <table className="min-w-full text-xs border-collapse">
-          <thead className="bg-background-muted sticky top-0 z-10 border-b border-border">
-            <tr className="text-left font-medium text-text-muted tracking-wide">
+        <table className="min-w-full text-sm border-collapse">
+          <thead
+            className="
+              bg-background-muted
+              dark:bg-darkBackground-subtle
+              sticky top-0 z-10
+              border-b border-borderColor dark:border-darkBorder
+            "
+          >
+            <tr className="text-left font-medium text-text-muted dark:text-darkText-muted tracking-wide">
               <th className="w-6 px-4 py-3"></th>
               <th className="px-4 py-3">Session</th>
               <th className="px-4 py-3">Status</th>
@@ -36,7 +51,12 @@ export function MonitoringTable() {
             {monitoringSessions.map((s) => (
               <tr
                 key={s.id}
-                className="border-b border-border hover:bg-background-subtle transition-colors cursor-pointer"
+                className="
+                  group
+                  border-b border-borderColor dark:border-darkBorder
+                  transition-all duration-200
+                  cursor-pointer
+                "
               >
                 <td className="pl-4 py-3">
                   <span
@@ -44,9 +64,9 @@ export function MonitoringTable() {
                   />
                 </td>
 
-                <td className="px-4 py-3 font-medium text-text">
+                <td className="px-4 py-3 font-medium text-text dark:text-darkText">
                   {s.source} → {s.target}
-                  <span className="ml-2 text-[11px] text-text-muted">
+                  <span className="ml-2 text-[11px] text-text-muted dark:text-darkText-muted">
                     ({s.version})
                   </span>
                 </td>
@@ -55,11 +75,23 @@ export function MonitoringTable() {
                   {s.status}
                 </td>
 
-                <td className="px-4 py-3 text-text-muted">{s.lastMsg}</td>
-                <td className="px-4 py-3 text-text-muted">{s.hb}</td>
-                <td className="px-4 py-3 text-text-muted">{s.seqGap}</td>
-                <td className="px-4 py-3 text-text-muted">{s.rtt}</td>
-                <td className="px-4 py-3 text-center text-text-muted">
+                <td className="px-4 py-3 text-text-muted dark:text-darkText-muted">
+                  {s.lastMsg}
+                </td>
+
+                <td className="px-4 py-3 text-text-muted dark:text-darkText-muted">
+                  {s.hb}
+                </td>
+
+                <td className="px-4 py-3 text-text-muted dark:text-darkText-muted">
+                  {s.seqGap}
+                </td>
+
+                <td className="px-4 py-3 text-text-muted dark:text-darkText-muted">
+                  {s.rtt}
+                </td>
+
+                <td className="px-4 py-3 text-center text-text-muted dark:text-darkText-muted">
                   {s.errors}
                 </td>
               </tr>

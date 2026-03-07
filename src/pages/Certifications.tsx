@@ -22,7 +22,14 @@ export function Certifications() {
   const [simulationId, setSimulationId] = useState<string | null>(null);
 
   return (
-    <div className="bg-background px-6 py-8">
+    <div
+      className="
+        bg-background dark:bg-darkBackground
+        px-6 py-10
+        min-h-[calc(100vh-var(--navbar-height))]
+        transition-colors duration-300
+      "
+    >
       <div className="max-w-6xl mx-auto space-y-10">
         <CertificationStepper step={step} />
 
@@ -50,12 +57,14 @@ export function Certifications() {
         )}
 
         {step === "sequence" && simulationId && (
-          <SequenceFlow
-            simulationId={simulationId}
-            onCompleted={() =>
-              navigate(`/certifications/results/${simulationId}`)
-            }
-          />
+          <div className="flex justify-center">
+            <SequenceFlow
+              simulationId={simulationId}
+              onCompleted={() =>
+                navigate(`/certifications/results/${simulationId}`)
+              }
+            />
+          </div>
         )}
       </div>
     </div>

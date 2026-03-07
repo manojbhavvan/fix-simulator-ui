@@ -1,3 +1,5 @@
+import { ArrowRight } from "lucide-react";
+
 type Props = {
   session: any;
 };
@@ -15,11 +17,16 @@ const getMsgLabel = (type: string) => {
 
 export function SequenceFlowView({ session }: Props) {
   if (!session?.messages)
-    return <div>No messages</div>;
+    return (
+      <div className="text-sm text-text-muted dark:text-darkText-muted">
+        No messages
+      </div>
+    );
 
   return (
-    <div className="border border-border rounded-lg bg-background shadow-sm">
-      <div className="px-5 py-3 border-b border-border">
+    <div className="border border-borderColor dark:border-darkBorder rounded-lg bg-background dark:bg-darkBackground-subtle shadow-sm transition-colors duration-300">
+      
+      <div className="px-5 py-3 border-b border-borderColor dark:border-darkBorder">
         <h3 className="text-sm font-semibold text-brand">
           {session.fixSessionId}
         </h3>
@@ -32,14 +39,24 @@ export function SequenceFlowView({ session }: Props) {
               key={msg.sessionMsgId}
               className="flex items-center gap-3"
             >
-              <span className="px-4 py-1.5 rounded-md border border-border bg-background-muted font-medium">
+              <span
+                className="
+                  px-4 py-1.5 rounded-md
+                  border border-borderColor dark:border-darkBorder
+                  bg-background-muted dark:bg-darkBackground-muted
+                  text-text dark:text-darkText
+                  font-medium
+                  transition-colors duration-300
+                "
+              >
                 {getMsgLabel(msg.msgType)}
               </span>
 
               {idx < session.messages.length - 1 && (
-                <span className="text-text-muted">
-                  →
-                </span>
+                <ArrowRight
+                  size={16}
+                  className="text-text-muted dark:text-darkText-muted shrink-0"
+                />
               )}
             </div>
           ))}
